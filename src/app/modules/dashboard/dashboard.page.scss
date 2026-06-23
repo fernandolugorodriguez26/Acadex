@@ -1,0 +1,45 @@
+.welcome-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  margin-bottom: 15px;
+}
+
+.calendar-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.section-title {
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  font-size: 1.1rem;
+}
+
+.transparent-list {
+  background: transparent;
+  .task-item {
+    --border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+}
+
+.subject-badge {
+  color: var(--ion-color-secondary);
+  font-weight: 500;
+  margin-top: 3px;
+}
+
+.completed-text {
+  text-decoration: line-through;
+  color: var(--ion-color-medium);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: var(--ion-color-medium);
+  p { margin-top: 10px; }
+}

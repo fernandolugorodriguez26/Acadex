@@ -1,0 +1,38 @@
+<ion-content class="ion-padding" color="light">
+  <div class="auth-container">
+    <div class="logo-section">
+      <h1>Acadex</h1>
+      <p>Tu espacio de estudio organizado</p>
+    </div>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title class="ion-text-center">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Registro de Estudiante' }}
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-input label="Correo electrónico" labelPlacement="floating" type="email" formControlName="email" placeholder="ejemplo@correo.com"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-input label="Contraseña (Mín. 6 caracteres)" labelPlacement="floating" type="password" formControlName="password"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" type="submit" [disabled]="authForm.invalid" class="ion-margin-top">
+            {{ isLoginMode ? 'Entrar' : 'Crear cuenta' }}
+          </ion-button>
+        </form>
+
+        <div class="toggle-mode ion-text-center ion-margin-top">
+          <a (click)="toggleMode()">
+            {{ isLoginMode ? '¿No tienes cuenta? Regístrate aquí' : '¿Ya tienes cuenta? Inicia sesión' }}
+          </a>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

@@ -1,0 +1,30 @@
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+
+  .logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--ion-color-primary);
+      margin: 0;
+    }
+    p {
+      color: var(--ion-color-medium);
+      font-size: 1.1rem;
+    }
+  }
+
+  .toggle-mode a {
+    cursor: pointer;
+    color: var(--ion-color-primary);
+    font-weight: 500;
+    text-decoration: underline;
+  }
+}

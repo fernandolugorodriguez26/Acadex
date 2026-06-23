@@ -1,0 +1,39 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Calendario Académico</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" color="light">
+  
+  <ion-card class="calendar-card">
+    <ion-datetime
+      presentation="date"
+      [highlightedDates]="highlightedDates"
+      (ionChange)="onDateChange($event)"
+      size="cover">
+    </ion-datetime>
+  </ion-card>
+
+  <div *ngIf="selectedDateTasks.length > 0">
+    <h3 class="section-title ion-padding-start">Entregas de este día</h3>
+    <ion-list class="transparent-list">
+      <ion-item *ngFor="let task of selectedDateTasks" class="task-item">
+        <ion-label>
+          <h2 [class.completed-text]="task.isCompleted">{{ task.title }}</h2>
+          <p class="subject-badge"><ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
+        </ion-label>
+        <ion-checkbox slot="start" [checked]="task.isCompleted" disabled></ion-checkbox>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div class="empty-state" *ngIf="selectedDateTasks.length === 0">
+    <ion-icon name="calendar-clear-outline" size="large" color="medium"></ion-icon>
+    <p>Toca un día sombreado para ver las tareas programadas.</p>
+  </div>
+
+</ion-content>

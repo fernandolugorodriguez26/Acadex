@@ -1,0 +1,67 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title>Acadex Panel</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" color="light">
+  
+  <ion-card class="welcome-card">
+    <ion-card-header>
+      <ion-card-title>¡Hola, Estudiante!</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button expand="block" color="secondary" routerLink="/subjects">
+        <ion-icon slot="start" name="book"></ion-icon>
+        Gestionar Mis Materias
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="calendar-card">
+    <ion-datetime
+      presentation="date"
+      [highlightedDates]="highlightedDates"
+      (ionChange)="onDateChange($event)"
+      size="cover">
+    </ion-datetime>
+  </ion-card>
+
+  <h3 class="section-title ion-padding-start">Entregas de la fecha</h3>
+  
+  <div *ngIf="selectedDateTasks.length > 0">
+    <ion-list class="transparent-list">
+      <ion-item *ngFor="let task of selectedDateTasks" class="task-item">
+        
+        <ion-checkbox 
+          slot="start" 
+          [checked]="task.isCompleted" 
+          (ionChange)="toggleComplete(task)">
+        </ion-checkbox>
+        
+        <ion-label>
+          <h2 [class.completed-text]="task.isCompleted">{{ task.title }}</h2>
+          <p class="subject-badge"><ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
+        </ion-label>
+        
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div class="empty-state" *ngIf="selectedDateTasks.length === 0">
+    <ion-icon name="checkmark-circle-outline" size="large" color="medium"></ion-icon>
+    <p>Día libre. ¡No hay tareas para esta fecha!</p>
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/tasks" color="tertiary">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

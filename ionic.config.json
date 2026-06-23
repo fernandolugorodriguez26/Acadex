@@ -1,0 +1,7 @@
+{
+  "name": "acadex",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

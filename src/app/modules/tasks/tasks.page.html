@@ -1,0 +1,68 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Gestión de Tareas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" color="light">
+
+  <ion-card class="form-card">
+    <ion-card-header>
+      <ion-card-title>Nueva Asignación</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form [formGroup]="taskForm" (ngSubmit)="addTask()">
+        
+        <ion-item fill="outline" class="ion-margin-bottom">
+          <ion-input label="Título de la tarea *" labelPlacement="floating" type="text" formControlName="title"></ion-input>
+        </ion-item>
+
+        <ion-item fill="outline" class="ion-margin-bottom">
+          <ion-select label="Materia *" labelPlacement="floating" formControlName="subjectName" interface="action-sheet" placeholder="Selecciona una asignatura">
+            <ion-select-option *ngFor="let sub of subjects$ | async" [value]="sub.name">
+              {{ sub.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        
+        <ion-item fill="outline" class="ion-margin-bottom">
+          <ion-input label="Fecha límite *" labelPlacement="floating" type="date" formControlName="dueDate"></ion-input>
+        </ion-item>
+
+        <ion-button expand="block" type="submit" [disabled]="taskForm.invalid">
+          Guardar Tarea
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <h3 class="section-title ion-padding-start">Mis Tareas Pendientes</h3>
+
+  <ion-list class="transparent-list" *ngIf="tasks$ | async as tasks">
+    <ion-item-sliding *ngFor="let task of tasks">
+      
+      <ion-item class="task-item">
+        <ion-checkbox slot="start" [checked]="task.isCompleted" (ionChange)="toggleComplete(task)"></ion-checkbox>
+        <ion-label>
+          <h2 [class.completed-text]="task.isCompleted">{{ task.title }}</h2>
+          <p class="subject-badge"><ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
+          <p>Vence: {{ task.dueDate | date:'dd/MM/yyyy' }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="deleteTask(task.id)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    
+    <div class="empty-state" *ngIf="tasks.length === 0">
+      <p>No hay tareas. ¡Todo al día!</p>
+    </div>
+  </ion-list>
+
+</ion-content>
