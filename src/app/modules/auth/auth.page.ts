@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth';
+// Importamos las herramientas de Firebase para guardar el perfil
+import { getAuth, updateProfile } from 'firebase/auth';
 
 @Component({
   selector: 'app-auth',
@@ -21,7 +23,10 @@ export class AuthPage implements OnInit {
     private loadingController: LoadingController,
     private alertController: AlertController
   ) {
+    // Agregamos los campos vacíos (la validación se activa después)
     this.authForm = this.fb.group({
+      nombre: [''], 
+      apellido: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
@@ -31,6 +36,21 @@ export class AuthPage implements OnInit {
 
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
+    
+    const nombreControl = this.authForm.get('nombre');
+    const apellidoControl = this.authForm.get('apellido');
+
+    // Lógica dinámica: Exigimos nombre y apellido SOLO en el registro
+    if (this.isLoginMode) {
+      nombreControl?.clearValidators();
+      apellidoControl?.clearValidators();
+    } else {
+      nombreControl?.setValidators([Validators.required]);
+      apellidoControl?.setValidators([Validators.required]);
+    }
+    
+    nombreControl?.updateValueAndValidity();
+    apellidoControl?.updateValueAndValidity();
   }
 
   async onSubmit() {
@@ -43,15 +63,20 @@ export class AuthPage implements OnInit {
 
     try {
       if (this.isLoginMode) {
+        // Inicio de sesión normal
         await this.authService.login(this.authForm.value);
       } else {
+        // Le pasamos al servicio el formulario completo (que ahora incluye nombre y apellido)
         await this.authService.register(this.authForm.value);
       }
+      
       await loading.dismiss();
       this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+      
     } catch (error: any) {
       await loading.dismiss();
-      this.showAlert('Error', 'Verifica tus credenciales e intenta nuevamente.');
+      console.error('Error de autenticación:', error);
+      this.showAlert('Error en el registro', error.message || 'Verifica tus datos e intenta nuevamente.');
     }
   }
 

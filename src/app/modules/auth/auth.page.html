@@ -14,6 +14,17 @@
 
       <ion-card-content>
         <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+          
+          <ng-container *ngIf="!isLoginMode">
+            <ion-item fill="outline" class="ion-margin-bottom">
+              <ion-input label="Nombre del estudiante" labelPlacement="floating" type="text" formControlName="nombre" placeholder="Ej: Fernando"></ion-input>
+            </ion-item>
+
+            <ion-item fill="outline" class="ion-margin-bottom">
+              <ion-input label="Apellido del estudiante" labelPlacement="floating" type="text" formControlName="apellido" placeholder="Ej: Lugo"></ion-input>
+            </ion-item>
+          </ng-container>
+
           <ion-item fill="outline" class="ion-margin-bottom">
             <ion-input label="Correo electrónico" labelPlacement="floating" type="email" formControlName="email" placeholder="ejemplo@correo.com"></ion-input>
           </ion-item>
