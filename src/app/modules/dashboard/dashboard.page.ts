@@ -3,7 +3,7 @@ import { AuthService } from '../../core/services/auth';
 import { DataService } from '../../core/services/data';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Auth } from '@angular/fire/auth'; // <-- 1. Importación correcta de AngularFire
+import { Auth, onAuthStateChanged } from '@angular/fire/auth'; 
 
 @Component({
   selector: 'app-dashboard',
@@ -18,41 +18,50 @@ export class DashboardPage implements OnInit {
   highlightedDates: any[] = [];
   currentSelectedDate: string = '';
   
-  // <-- 2. Variable para guardar el nombre del usuario
   userName: string = 'Estudiante'; 
+  userPhoto: string = ''; 
 
   constructor(
     private authService: AuthService,
     private dataService: DataService,
     private router: Router,
-    private auth: Auth // <-- 3. Inyectamos la conexión segura
+    private auth: Auth 
   ) {
     this.currentSelectedDate = new Date().toISOString().split('T')[0];
   }
 
+  // [INICIALIZACIÓN SEGURA]
+  // Utilizo onAuthStateChanged para garantizar que la carga de datos ocurra solo
+  // cuando Firebase confirma la sesión del usuario, evitando errores de navegación al refrescar.
   ngOnInit() {
-    // <-- 4. Leemos el perfil registrado de forma silenciosa y sin errores
-    const user = this.auth.currentUser;
-    if (user && user.displayName) {
-      // Usamos el split para tomar solo el primer nombre (ej. "Fernando Lugo" -> "Fernando")
-      this.userName = user.displayName.split(' ')[0]; 
-    }
+    onAuthStateChanged(this.auth, (user) => {
+      if (user) {
+        if (user.displayName) {
+          this.userName = user.displayName.split(' ')[0];
+        }
+        this.userPhoto = user.photoURL || ''; 
 
-    this.tasks$ = this.dataService.getTasks();
-    
-    this.tasks$.subscribe(tasks => {
-      this.allTasks = tasks;
-      
-      this.highlightedDates = tasks.map(task => ({
-        date: task.dueDate,
-        textColor: '#ffffff',
-        backgroundColor: '#3880ff'
-      }));
+        this.tasks$ = this.dataService.getTasks();
+        
+        this.tasks$.subscribe(tasks => {
+          this.allTasks = tasks;
+          
+          this.highlightedDates = tasks.map(task => ({
+            date: task.dueDate,
+            textColor: '#ffffff',
+            backgroundColor: '#3880ff'
+          }));
 
-      this.filterTasksByDate(this.currentSelectedDate);
+          this.filterTasksByDate(this.currentSelectedDate);
+        });
+      } else {
+        this.router.navigateByUrl('/auth', { replaceUrl: true });
+      }
     });
   }
 
+  // [FILTRADO DE TAREAS]
+  // Actualizo la vista cada vez que el usuario cambia la fecha en el calendario.
   onDateChange(event: any) {
     this.currentSelectedDate = event.detail.value.split('T')[0];
     this.filterTasksByDate(this.currentSelectedDate);
@@ -62,6 +71,8 @@ export class DashboardPage implements OnInit {
     this.selectedDateTasks = this.allTasks.filter(task => task.dueDate === date);
   }
 
+  // [GESTIÓN DE ESTADO]
+  // Interacción directa con el servicio de datos para marcar tareas como completadas.
   async toggleComplete(task: any) {
     try {
       await this.dataService.updateTask(task.id, { isCompleted: !task.isCompleted });
@@ -70,6 +81,8 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  // [CIERRE DE SESIÓN]
+  // Finalizo la sesión y redirijo al usuario al portal de autenticación.
   async logout() {
     await this.authService.logout();
     this.router.navigateByUrl('/auth', { replaceUrl: true });

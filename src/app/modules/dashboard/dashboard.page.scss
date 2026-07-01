@@ -1,3 +1,70 @@
+/* =======================================
+   ESTILOS DEL BOTÓN DE PERFIL MODERNO
+   ======================================= */
+.profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 6px;
+  background: var(--ion-color-light); 
+  border-radius: 50px; 
+  margin-right: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .user-info {
+    text-align: right;
+    
+    p { margin: 0; line-height: 1.2; }
+    
+    .greeting {
+      font-size: 0.75rem;
+      color: var(--ion-color-medium);
+    }
+    
+    .name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    
+    ion-avatar {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--ion-color-primary);
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      background-color: var(--ion-color-success);
+      border: 2px solid white;
+      border-radius: 50%;
+    }
+  }
+}
+
+/* Adaptación al Modo Oscuro */
+html.ion-palette-dark .profile-trigger {
+  background: #1e1e1e;
+  .status-dot { border-color: #1e1e1e; }
+}
+
+/* =======================================
+   ESTILOS DE LAS TARJETAS Y LISTAS (TU CÓDIGO)
+   ======================================= */
 .welcome-card {
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
@@ -13,7 +80,7 @@
 
 .section-title {
   font-weight: 700;
-  color: var(--ion-color-dark);
+  color: var(--ion-text-color); /* Ajustado para que brille en modo oscuro */
   font-size: 1.1rem;
 }
 

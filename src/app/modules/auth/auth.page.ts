@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth';
-// Importamos las herramientas de Firebase para guardar el perfil
 import { getAuth, updateProfile } from 'firebase/auth';
 
 @Component({
@@ -23,7 +22,8 @@ export class AuthPage implements OnInit {
     private loadingController: LoadingController,
     private alertController: AlertController
   ) {
-    // Agregamos los campos vacíos (la validación se activa después)
+    // [ESTADO INICIAL]
+    // Inicializo el formulario. Solo defino email y password como requeridos al cargar la vista.
     this.authForm = this.fb.group({
       nombre: [''], 
       apellido: [''],
@@ -34,13 +34,14 @@ export class AuthPage implements OnInit {
 
   ngOnInit() {}
 
+  // [VALIDACIÓN DINÁMICA]
+  // Al alternar entre Login y Registro, activo o desactivo la obligatoriedad de nombre y apellido.
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
     
     const nombreControl = this.authForm.get('nombre');
     const apellidoControl = this.authForm.get('apellido');
 
-    // Lógica dinámica: Exigimos nombre y apellido SOLO en el registro
     if (this.isLoginMode) {
       nombreControl?.clearValidators();
       apellidoControl?.clearValidators();
@@ -53,6 +54,8 @@ export class AuthPage implements OnInit {
     apellidoControl?.updateValueAndValidity();
   }
 
+  // [PROCESAMIENTO Y RUTEO]
+  // Ejecuto la petición a Firebase. Si es exitosa, bloqueo el botón de retroceso usando replaceUrl.
   async onSubmit() {
     if (this.authForm.invalid) return;
 
@@ -63,10 +66,8 @@ export class AuthPage implements OnInit {
 
     try {
       if (this.isLoginMode) {
-        // Inicio de sesión normal
         await this.authService.login(this.authForm.value);
       } else {
-        // Le pasamos al servicio el formulario completo (que ahora incluye nombre y apellido)
         await this.authService.register(this.authForm.value);
       }
       
@@ -80,6 +81,8 @@ export class AuthPage implements OnInit {
     }
   }
 
+  // [UI HANDLER]
+  // Centralizo la creación de alertas para mantener limpios los bloques try/catch.
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
       header,

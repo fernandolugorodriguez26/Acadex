@@ -1,11 +1,31 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-title>Acadex Panel</ion-title>
+  <ion-toolbar>
+    <ion-title>
+      <strong>Acadex</strong> Dashboard
+    </ion-title>
+
     <ion-buttons slot="end">
-      <ion-button (click)="logout()">
+      <div class="profile-trigger" routerLink="/profile">
+        
+        <div class="user-info">
+          <p class="greeting">Hola,</p>
+          <p class="name">{{ userName }}</p>
+        </div>
+
+        <div class="avatar-wrapper">
+          <ion-avatar>
+            <img [src]="userPhoto || 'https://ui-avatars.com/api/?name=' + userName + '&background=3880ff&color=fff'" alt="Avatar" />
+          </ion-avatar>
+          <span class="status-dot"></span>
+        </div>
+
+      </div>
+
+      <ion-button (click)="logout()" color="danger" class="ion-margin-start">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
@@ -13,7 +33,7 @@
   
   <ion-card class="welcome-card">
     <ion-card-header>
-      <ion-card-title>¡Hola, {{ userName }}!</ion-card-title>
+      <ion-card-title>Resumen de Estudio</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-button expand="block" color="secondary" routerLink="/subjects">
@@ -46,7 +66,9 @@
         
         <ion-label>
           <h2 [class.completed-text]="task.isCompleted">{{ task.title }}</h2>
-          <p class="subject-badge"><ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
+          <p class="subject-badge">
+            <ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}
+          </p>
         </ion-label>
         
       </ion-item>

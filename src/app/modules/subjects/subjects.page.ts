@@ -20,16 +20,22 @@ export class SubjectsPage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {
+    // [CONFIGURACIÓN DEL FORMULARIO]
+    // Estructuro el formulario para capturar los datos básicos de cada materia académica.
     this.subjectForm = this.fb.group({
       name: ['', Validators.required],
       professor: ['', Validators.required]
     });
   }
 
+  // [INICIALIZACIÓN]
+  // Obtengo el stream de datos de las materias para que la UI se mantenga actualizada en tiempo real.
   ngOnInit() {
     this.subjects$ = this.dataService.getSubjects();
   }
 
+  // [CREACIÓN DE MATERIAS]
+  // Valido el formulario y delego la persistencia al servicio de datos.
   async addSubject() {
     if (this.subjectForm.invalid) return;
 
@@ -42,6 +48,8 @@ export class SubjectsPage implements OnInit {
     }
   }
 
+  // [ELIMINACIÓN SEGURA]
+  // Implemento un patrón de confirmación antes de ejecutar operaciones destructivas.
   async confirmDelete(subjectId: string) {
     const alert = await this.alertCtrl.create({
       header: '¿Eliminar materia?',
@@ -54,6 +62,8 @@ export class SubjectsPage implements OnInit {
     await alert.present();
   }
 
+  // [OPERACIÓN DE BORRADO]
+  // Ejecuto la baja de la materia en la base de datos y notifico al usuario.
   async deleteSubject(subjectId: string) {
     try {
       await this.dataService.deleteSubject(subjectId);
@@ -63,6 +73,8 @@ export class SubjectsPage implements OnInit {
     }
   }
 
+  // [UX FEEDBACK]
+  // Centralizo la gestión de mensajes tipo Toast para uniformizar las notificaciones.
   async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
       message,

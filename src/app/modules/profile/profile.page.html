@@ -1,0 +1,98 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" color="light">
+  <input type="file" accept="image/*" hidden #fileInput (change)="onFileSelected($event)">
+  <div class="profile-header ion-text-center">
+    <div class="avatar-container" (click)="fileInput.click()">
+      <ion-avatar class="main-avatar">
+        <img [src]="getAvatarUrl()" alt="Perfil" />
+      </ion-avatar>
+      <div class="edit-icon-badge">
+        <ion-icon name="camera"></ion-icon>
+      </div>
+    </div>
+    <h2>{{ nombre }} {{ apellido }}</h2>
+    <p color="medium">{{ email }}</p>
+
+    <ion-row class="stats-row ion-margin-top">
+      <ion-col>
+        <h3>15</h3>
+        <p>Tareas Listas</p>
+      </ion-col>
+      <ion-col>
+        <h3>4</h3>
+        <p>Materias</p>
+      </ion-col>
+    </ion-row>
+  </div>
+
+  <ion-list inset="true" class="custom-list">
+    <ion-list-header>
+      <ion-label>Datos de Estudiante</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-icon name="school-outline" slot="start" color="primary"></ion-icon>
+      <ion-input label="Universidad" labelPlacement="stacked" [(ngModel)]="universidad"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="book-outline" slot="start" color="primary"></ion-icon>
+      <ion-input label="Carrera" labelPlacement="stacked" [(ngModel)]="carrera"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-icon name="id-card-outline" slot="start" color="primary"></ion-icon>
+      <ion-input label="Matrícula" labelPlacement="stacked" [(ngModel)]="matricula"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <ion-button expand="block" class="ion-margin" (click)="saveProfile()">
+    <ion-icon name="save-outline" slot="start"></ion-icon>
+    Guardar Cambios
+  </ion-button>
+
+  <ion-list inset="true" class="custom-list">
+    <ion-list-header>
+      <ion-label>Preferencias</ion-label>
+    </ion-list-header>
+
+<ion-item>
+  <ion-icon name="color-palette-outline" slot="start" color="primary"></ion-icon>
+  <ion-select label="Apariencia" [(ngModel)]="themeMode" (ionChange)="onThemeChange($event)" interface="popover">
+    <ion-select-option value="light">Claro</ion-select-option>
+    <ion-select-option value="dark">Oscuro</ion-select-option>
+    <ion-select-option value="system">Automático (Sistema)</ion-select-option>
+  </ion-select>
+</ion-item>
+
+    <ion-item lines="none">
+      <ion-icon name="notifications-outline" slot="start"></ion-icon>
+      <ion-toggle [(ngModel)]="notificationsEnabled">Notificaciones</ion-toggle>
+    </ion-item>
+  </ion-list>
+
+  <ion-list inset="true" class="danger-zone">
+    <ion-list-header>
+      <ion-label color="danger">Seguridad</ion-label>
+    </ion-list-header>
+
+    <ion-item button detail="true" (click)="changePassword()">
+      <ion-icon name="key-outline" slot="start" color="warning"></ion-icon>
+      <ion-label>Cambiar Contraseña</ion-label>
+    </ion-item>
+
+    <ion-item button lines="none" (click)="deleteAccount()">
+      <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
+      <ion-label color="danger">Eliminar mi cuenta</ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
