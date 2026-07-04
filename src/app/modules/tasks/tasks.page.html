@@ -3,11 +3,32 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/dashboard"></ion-back-button>
     </ion-buttons>
-    <ion-title>Gestión de Tareas</ion-title>
+    <ion-title>Gestión Académica</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding" color="light">
+
+  <ion-card class="progress-card ion-margin-bottom">
+    <ion-card-content>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="progress-header">
+          <strong>Tu Progreso Global</strong><br>
+          <span style="font-size: 0.85rem; color: var(--ion-color-medium);">
+            {{ completedTasks }} de {{ totalTasks }} tareas ({{ progressPercentage | percent:'1.0-0' }})
+          </span>
+        </div>
+        
+        <div class="streak-badge" style="background: rgba(255, 152, 0, 0.1); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255, 152, 0, 0.3); text-align: center;">
+          <ion-icon name="flame" color="warning" style="font-size: 1.5rem;"></ion-icon><br>
+          <strong style="color: #ff9800; font-size: 1.1rem;">{{ studyStreak }}</strong>
+          <span style="font-size: 0.7rem; display: block; color: var(--ion-color-medium);">Días</span>
+        </div>
+      </div>
+      
+      <ion-progress-bar [value]="progressPercentage" color="success"></ion-progress-bar>
+    </ion-card-content>
+  </ion-card>
 
   <ion-card class="form-card">
     <ion-card-header>
@@ -17,14 +38,35 @@
       <form [formGroup]="taskForm" (ngSubmit)="addTask()">
         
         <ion-item fill="outline" class="ion-margin-bottom">
-          <ion-input label="Título de la tarea *" labelPlacement="floating" type="text" formControlName="title"></ion-input>
+          <ion-input label="Título *" labelPlacement="floating" type="text" formControlName="title"></ion-input>
         </ion-item>
 
+        <ion-row>
+          <ion-col size="6">
+            <ion-item fill="outline" class="ion-margin-bottom">
+              <ion-select label="Tipo" labelPlacement="floating" formControlName="category" interface="popover">
+                <ion-select-option value="Tarea">Tarea</ion-select-option>
+                <ion-select-option value="Proyecto">Proyecto</ion-select-option>
+                <ion-select-option value="Examen">Examen</ion-select-option>
+                <ion-select-option value="Lectura">Lectura</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item fill="outline" class="ion-margin-bottom">
+              <ion-select label="Prioridad" labelPlacement="floating" formControlName="priority" interface="popover">
+                <ion-select-option value="Baja">Baja</ion-select-option>
+                <ion-select-option value="Media">Media</ion-select-option>
+                <ion-select-option value="Alta">Alta</ion-select-option>
+                <ion-select-option value="Crítica">Crítica</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
         <ion-item fill="outline" class="ion-margin-bottom">
-          <ion-select label="Materia *" labelPlacement="floating" formControlName="subjectName" interface="action-sheet" placeholder="Selecciona una asignatura">
-            <ion-select-option *ngFor="let sub of subjects$ | async" [value]="sub.name">
-              {{ sub.name }}
-            </ion-select-option>
+          <ion-select label="Materia *" labelPlacement="floating" formControlName="subjectName" interface="action-sheet">
+            <ion-select-option *ngFor="let sub of subjects$ | async" [value]="sub.name">{{ sub.name }}</ion-select-option>
           </ion-select>
         </ion-item>
         
@@ -32,24 +74,76 @@
           <ion-input label="Fecha límite *" labelPlacement="floating" type="date" formControlName="dueDate"></ion-input>
         </ion-item>
 
+        <ion-item fill="outline" class="ion-margin-bottom">
+          <ion-textarea 
+            label="Notas Rápidas (Enlaces, Dudas, Repo)" 
+            labelPlacement="floating" 
+            formControlName="notes" 
+            [autoGrow]="true"
+            rows="2">
+          </ion-textarea>
+        </ion-item>
+
+        <ion-item fill="outline" class="ion-margin-bottom">
+          <ion-label position="stacked">Recurso adjunto (Opcional)</ion-label>
+          <input type="file" (change)="onFileSelected($event)" style="margin-top: 10px;" />
+        </ion-item>
+
         <ion-button expand="block" type="submit" [disabled]="taskForm.invalid">
-          Guardar Tarea
+          Guardar Asignación
         </ion-button>
       </form>
     </ion-card-content>
   </ion-card>
 
-  <h3 class="section-title ion-padding-start">Mis Tareas Pendientes</h3>
+  <h3 class="section-title ion-padding-start">Mis Tareas</h3>
 
-  <ion-list class="transparent-list" *ngIf="tasks$ | async as tasks">
-    <ion-item-sliding *ngFor="let task of tasks">
+  <div class="filters-container ion-padding-horizontal ion-margin-bottom" style="overflow-x: auto; white-space: nowrap;">
+    <ion-chip [color]="currentFilter === 'all' ? 'primary' : 'medium'" [outline]="currentFilter !== 'all'" (click)="applyFilter('all')">
+      Todas
+    </ion-chip>
+    <ion-chip [color]="currentFilter === 'today' ? 'primary' : 'medium'" [outline]="currentFilter !== 'today'" (click)="applyFilter('today')">
+      Hoy
+    </ion-chip>
+    <ion-chip [color]="currentFilter === 'week' ? 'primary' : 'medium'" [outline]="currentFilter !== 'week'" (click)="applyFilter('week')">
+      Próximos 7 días
+    </ion-chip>
+    <ion-chip [color]="currentFilter === 'pending' ? 'warning' : 'medium'" [outline]="currentFilter !== 'pending'" (click)="applyFilter('pending')">
+      Pendientes
+    </ion-chip>
+    <ion-chip [color]="currentFilter === 'completed' ? 'success' : 'medium'" [outline]="currentFilter !== 'completed'" (click)="applyFilter('completed')">
+      Completadas
+    </ion-chip>
+  </div>
+
+  <ion-list class="transparent-list">
+    <ion-item-sliding *ngFor="let task of filteredTasks">
       
       <ion-item class="task-item">
         <ion-checkbox slot="start" [checked]="task.isCompleted" (ionChange)="toggleComplete(task)"></ion-checkbox>
         <ion-label>
-          <h2 [class.completed-text]="task.isCompleted">{{ task.title }}</h2>
-          <p class="subject-badge"><ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
+          <h2 [class.completed-text]="task.isCompleted">
+            {{ task.title }} 
+            <ion-badge [color]="getPriorityColor(task.priority)" style="font-size: 0.65rem; margin-left: 5px;">
+              {{ task.priority }}
+            </ion-badge>
+          </h2>
+          
+          <p class="subject-badge">
+            <ion-icon name="folder-outline"></ion-icon> {{ task.category }} &bull; 
+            <ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}
+          </p>
           <p>Vence: {{ task.dueDate | date:'dd/MM/yyyy' }}</p>
+          
+          <p *ngIf="task.notes" style="font-size: 0.8rem; margin-top: 5px; color: var(--ion-color-medium); white-space: pre-line;">
+            <ion-icon name="document-text-outline"></ion-icon> {{ task.notes }}
+          </p>
+
+          <p *ngIf="task.attachmentUrl" style="margin-top: 5px;">
+            <a [href]="task.attachmentUrl" target="_blank" style="text-decoration: none; color: var(--ion-color-secondary);">
+              <ion-icon name="document-attach-outline"></ion-icon> Ver {{ task.fileName || 'Adjunto' }}
+            </a>
+          </p>
         </ion-label>
       </ion-item>
 
@@ -60,8 +154,8 @@
       </ion-item-options>
     </ion-item-sliding>
     
-    <div class="empty-state" *ngIf="tasks.length === 0">
-      <p>No hay tareas. ¡Todo al día!</p>
+    <div class="empty-state" *ngIf="filteredTasks.length === 0">
+      <p>No hay tareas en este filtro.</p>
     </div>
   </ion-list>
 

@@ -63,14 +63,8 @@ html.ion-palette-dark .profile-trigger {
 }
 
 /* =======================================
-   ESTILOS DE LAS TARJETAS Y LISTAS (TU CÓDIGO)
+   ESTILOS DEL CALENDARIO Y LISTAS
    ======================================= */
-.welcome-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-  margin-bottom: 15px;
-}
-
 .calendar-card {
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
@@ -78,10 +72,19 @@ html.ion-palette-dark .profile-trigger {
   overflow: hidden;
 }
 
-.section-title {
-  font-weight: 700;
-  color: var(--ion-text-color); /* Ajustado para que brille en modo oscuro */
-  font-size: 1.1rem;
+/* NUEVO: Encabezado flexible para título y botón de materias */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+
+  .section-title {
+    font-weight: 700;
+    color: var(--ion-text-color);
+    font-size: 1.1rem;
+    margin: 0; 
+  }
 }
 
 .transparent-list {

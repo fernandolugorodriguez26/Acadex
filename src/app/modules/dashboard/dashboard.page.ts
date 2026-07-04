@@ -31,8 +31,6 @@ export class DashboardPage implements OnInit {
   }
 
   // [INICIALIZACIÓN SEGURA]
-  // Utilizo onAuthStateChanged para garantizar que la carga de datos ocurra solo
-  // cuando Firebase confirma la sesión del usuario, evitando errores de navegación al refrescar.
   ngOnInit() {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
@@ -61,7 +59,6 @@ export class DashboardPage implements OnInit {
   }
 
   // [FILTRADO DE TAREAS]
-  // Actualizo la vista cada vez que el usuario cambia la fecha en el calendario.
   onDateChange(event: any) {
     this.currentSelectedDate = event.detail.value.split('T')[0];
     this.filterTasksByDate(this.currentSelectedDate);
@@ -72,7 +69,6 @@ export class DashboardPage implements OnInit {
   }
 
   // [GESTIÓN DE ESTADO]
-  // Interacción directa con el servicio de datos para marcar tareas como completadas.
   async toggleComplete(task: any) {
     try {
       await this.dataService.updateTask(task.id, { isCompleted: !task.isCompleted });
@@ -81,8 +77,18 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  // [ESTILOS DINÁMICOS]
+  getPriorityColor(priority: string): string {
+    switch(priority) {
+      case 'Crítica': return 'danger';
+      case 'Alta': return 'warning';
+      case 'Media': return 'primary';
+      case 'Baja': return 'medium';
+      default: return 'primary';
+    }
+  }
+
   // [CIERRE DE SESIÓN]
-  // Finalizo la sesión y redirijo al usuario al portal de autenticación.
   async logout() {
     await this.authService.logout();
     this.router.navigateByUrl('/auth', { replaceUrl: true });

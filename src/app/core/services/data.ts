@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, query, where, addDoc, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
@@ -8,7 +9,11 @@ import { Observable } from 'rxjs';
 })
 export class DataService {
 
-  constructor(private firestore: Firestore, private auth: Auth) { }
+  constructor(
+    private firestore: Firestore, 
+    private auth: Auth,
+    private storage: Storage // <-- Añadimos Storage para los adjuntos
+  ) { }
 
   private get userId() {
     return this.auth.currentUser?.uid;
@@ -23,7 +28,7 @@ export class DataService {
 
   addTask(task: any) {
     const tasksRef = collection(this.firestore, 'tasks');
-    return addDoc(tasksRef, { ...task, userId: this.userId });
+    return addDoc(tasksRef, { ...task, userId: this.userId, createdAt: new Date() });
   }
 
   updateTask(taskId: string, data: any) {
@@ -34,6 +39,16 @@ export class DataService {
   deleteTask(taskId: string) {
     const taskDocRef = doc(this.firestore, `tasks/${taskId}`);
     return deleteDoc(taskDocRef);
+  }
+
+  // [NUEVO] Sube un archivo a Firebase Storage y devuelve la URL pública
+  async uploadTaskAttachment(file: File): Promise<string> {
+    if (!this.userId) throw new Error('Usuario no autenticado');
+    const filePath = `tasks_attachments/${this.userId}/${Date.now()}_${file.name}`;
+    const storageRef = ref(this.storage, filePath);
+    
+    await uploadBytes(storageRef, file);
+    return getDownloadURL(storageRef);
   }
 
   // ================= MATERIAS =================
