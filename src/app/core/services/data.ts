@@ -12,7 +12,7 @@ export class DataService {
   constructor(
     private firestore: Firestore, 
     private auth: Auth,
-    private storage: Storage // <-- Añadimos Storage para los adjuntos
+    private storage: Storage
   ) { }
 
   private get userId() {
@@ -41,7 +41,6 @@ export class DataService {
     return deleteDoc(taskDocRef);
   }
 
-  // [NUEVO] Sube un archivo a Firebase Storage y devuelve la URL pública
   async uploadTaskAttachment(file: File): Promise<string> {
     if (!this.userId) throw new Error('Usuario no autenticado');
     const filePath = `tasks_attachments/${this.userId}/${Date.now()}_${file.name}`;
@@ -51,7 +50,7 @@ export class DataService {
     return getDownloadURL(storageRef);
   }
 
-  // ================= MATERIAS =================
+  // ================= MATERIAS Y CALIFICACIONES =================
   getSubjects(): Observable<any[]> {
     const subRef = collection(this.firestore, 'subjects');
     const q = query(subRef, where('userId', '==', this.userId));
@@ -61,6 +60,12 @@ export class DataService {
   addSubject(subject: any) {
     const subRef = collection(this.firestore, 'subjects');
     return addDoc(subRef, { ...subject, userId: this.userId });
+  }
+
+  // NUEVO: Función para guardar las calificaciones actualizadas
+  updateSubject(subjectId: string, data: any) {
+    const subRef = doc(this.firestore, `subjects/${subjectId}`);
+    return updateDoc(subRef, data);
   }
 
   deleteSubject(subjectId: string) {
