@@ -6,39 +6,41 @@
 
     <ion-buttons slot="end">
       <div class="profile-trigger" routerLink="/profile">
-        
         <div class="user-info">
           <p class="greeting">Hola,</p>
           <p class="name">{{ userName }}</p>
         </div>
-
         <div class="avatar-wrapper">
           <ion-avatar>
             <img [src]="userPhoto || 'https://ui-avatars.com/api/?name=' + userName + '&background=3880ff&color=fff'" alt="Avatar" />
           </ion-avatar>
           <span class="status-dot"></span>
         </div>
-
       </div>
-
       <ion-button (click)="logout()" color="danger" class="ion-margin-start">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding" color="light">
   
-  <ion-card class="calendar-card">
+  <ion-card class="calendar-card" style="display: flex; flex-direction: column;">
     <ion-datetime
       presentation="date"
       [highlightedDates]="highlightedDates"
       (ionChange)="onDateChange($event)"
       size="cover">
     </ion-datetime>
+    
+    <ion-button expand="block" fill="clear" color="tertiary" (click)="triggerIcsUpload()" style="margin: 0; border-top: 1px solid rgba(128,128,128,0.1);">
+      <ion-icon name="sync-outline" slot="start"></ion-icon>
+      Sincronizar Calendario UAPA (.ics)
+    </ion-button>
   </ion-card>
+
+  <input type="file" id="ics-upload-dashboard" accept=".ics" style="display: none;" (change)="onIcsSelected($event)">
 
   <div class="section-header ion-padding-start ion-padding-end">
     <h3 class="section-title">Entregas de la fecha</h3>
@@ -69,7 +71,6 @@
             <ion-icon name="folder-outline"></ion-icon> {{ task.category || 'Tarea' }} &bull; 
             <ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}
           </p>
-
           <p *ngIf="task.attachmentUrl" style="margin-top: 5px;">
             <a [href]="task.attachmentUrl" target="_blank" style="text-decoration: none; color: var(--ion-color-secondary);">
               <ion-icon name="document-attach-outline"></ion-icon> Ver {{ task.fileName || 'Adjunto' }}
