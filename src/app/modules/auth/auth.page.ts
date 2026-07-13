@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { LoadingController, AlertController } from '@ionic/angular';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
-import { getAuth, updateProfile } from 'firebase/auth';
+import { ToastController, LoadingController, NavController, AlertController } from '@ionic/angular'; 
 
 @Component({
   selector: 'app-auth',
@@ -13,82 +11,180 @@ import { getAuth, updateProfile } from 'firebase/auth';
 })
 export class AuthPage implements OnInit {
   authForm: FormGroup;
-  isLoginMode = true;
+  isLoginMode: boolean = true; 
+
+  showPassword = false;
+  showConfirmPassword = false;
+
+  emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$";
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private loadingController: LoadingController,
-    private alertController: AlertController
+    private toastCtrl: ToastController,
+    private loadingCtrl: LoadingController,
+    private navCtrl: NavController,
+    private alertCtrl: AlertController
   ) {
-    // [ESTADO INICIAL]
-    // Inicializo el formulario. Solo defino email y password como requeridos al cargar la vista.
     this.authForm = this.fb.group({
-      nombre: [''], 
+      email: ['', [Validators.required, Validators.pattern(this.emailPattern)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: [''],
+      nombre: [''],
       apellido: [''],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
+      universidad: [''],
+      carrera: [''],
+      matricula: ['']
+    }, { validators: this.passwordMatchValidator }); 
   }
 
   ngOnInit() {}
 
-  // [VALIDACIÓN DINÁMICA]
-  // Al alternar entre Login y Registro, activo o desactivo la obligatoriedad de nombre y apellido.
-  toggleMode() {
-    this.isLoginMode = !this.isLoginMode;
-    
-    const nombreControl = this.authForm.get('nombre');
-    const apellidoControl = this.authForm.get('apellido');
-
-    if (this.isLoginMode) {
-      nombreControl?.clearValidators();
-      apellidoControl?.clearValidators();
-    } else {
-      nombreControl?.setValidators([Validators.required]);
-      apellidoControl?.setValidators([Validators.required]);
-    }
-    
-    nombreControl?.updateValueAndValidity();
-    apellidoControl?.updateValueAndValidity();
+  passwordMatchValidator(control: AbstractControl) {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirmPassword')?.value;
+    if (!password || !confirmPassword) return null;
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  // [PROCESAMIENTO Y RUTEO]
-  // Ejecuto la petición a Firebase. Si es exitosa, bloqueo el botón de retroceso usando replaceUrl.
+  toggleMode() {
+    this.isLoginMode = !this.isLoginMode;
+    this.authForm.reset();
+    
+    const camposRegistro = ['confirmPassword', 'nombre', 'apellido'];
+
+    if (!this.isLoginMode) {
+      camposRegistro.forEach(campo => this.authForm.get(campo)?.setValidators([Validators.required]));
+    } else {
+      camposRegistro.forEach(campo => this.authForm.get(campo)?.clearValidators());
+    }
+    
+    camposRegistro.forEach(campo => this.authForm.get(campo)?.updateValueAndValidity());
+  }
+
+  togglePasswordVisibility(target: 'pass' | 'confirm') {
+    if (target === 'pass') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
+  }
+
+  // [ACTUALIZADO] Alerta moderna y estilizada
+  async forgotPassword() {
+    const alert = await this.alertCtrl.create({
+      header: 'Recuperar Contraseña',
+      message: 'Ingresa tu correo y te enviaremos un enlace seguro para restablecerla.',
+      mode: 'ios', // Obliga bordes redondeados y estilo premium
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'ejemplo@uapa.edu.do'
+        }
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Enviar Enlace',
+          handler: async (data) => {
+            if (data.email) {
+              try {
+                await this.authService.resetPassword(data.email);
+                this.showToast('Correo de recuperación enviado.', 'success', 'mail-unread');
+              } catch (error: any) {
+                const friendlyMessage = this.getFriendlyErrorMessage(error.code);
+                this.showToast(friendlyMessage, 'danger', 'alert-circle');
+              }
+            } else {
+              this.showToast('Por favor, ingresa un correo válido.', 'warning', 'warning');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
   async onSubmit() {
     if (this.authForm.invalid) return;
 
-    const loading = await this.loadingController.create({
-      message: 'Procesando...',
+    const formValues = this.authForm.value;
+    
+    // Spinner moderno de carga
+    const loading = await this.loadingCtrl.create({
+      message: this.isLoginMode ? 'Iniciando sesión...' : 'Preparando tu espacio...',
+      spinner: 'crescent',
+      mode: 'ios'
     });
     await loading.present();
 
     try {
       if (this.isLoginMode) {
-        await this.authService.login(this.authForm.value);
+        await this.authService.login({ email: formValues.email, password: formValues.password });
+        this.navCtrl.navigateRoot('/dashboard'); 
       } else {
-        await this.authService.register(this.authForm.value);
+        await this.authService.register({
+          email: formValues.email,
+          password: formValues.password,
+          nombre: formValues.nombre,
+          apellido: formValues.apellido,
+          universidad: formValues.universidad,
+          carrera: formValues.carrera,
+          matricula: formValues.matricula
+        });
+        // [ACTUALIZADO] Toast de éxito con ícono
+        this.showToast('¡Cuenta creada con éxito! Bienvenido a Acadex.', 'success', 'checkmark-circle');
+        this.navCtrl.navigateRoot('/dashboard'); 
       }
-      
-      await loading.dismiss();
-      this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-      
     } catch (error: any) {
+      console.error(error);
+      const friendlyMessage = this.getFriendlyErrorMessage(error.code);
+      // [ACTUALIZADO] Toast de error con ícono
+      this.showToast(friendlyMessage, 'danger', 'alert-circle');
+    } finally {
       await loading.dismiss();
-      console.error('Error de autenticación:', error);
-      this.showAlert('Error en el registro', error.message || 'Verifica tus datos e intenta nuevamente.');
     }
   }
 
-  // [UI HANDLER]
-  // Centralizo la creación de alertas para mantener limpios los bloques try/catch.
-  async showAlert(header: string, message: string) {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      buttons: ['OK'],
+  getFriendlyErrorMessage(errorCode: string): string {
+    switch (errorCode) {
+      case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
+        return 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+      case 'auth/email-already-in-use':
+        return 'Este correo ya está registrado en Acadex.';
+      case 'auth/weak-password':
+        return 'La contraseña es muy débil (Mínimo 6 caracteres).';
+      case 'auth/invalid-email':
+        return 'El formato del correo electrónico no es válido.';
+      case 'auth/network-request-failed':
+        return 'Sin conexión. Revisa tu internet e inténtalo de nuevo.';
+      case 'auth/too-many-requests':
+        return 'Demasiados intentos. Cuenta bloqueada temporalmente.';
+      default:
+        return 'Hubo un inconveniente inesperado. Intenta otra vez.';
+    }
+  }
+
+  // [ACTUALIZADO] Toasts superiores estilo notificaciones Push
+  async showToast(message: string, color: string, icon: string = 'information-circle') {
+    const toast = await this.toastCtrl.create({ 
+      message, 
+      duration: 3500, 
+      color, 
+      position: 'top', 
+      icon: icon,
+      mode: 'ios',
+      cssClass: 'modern-toast',
+      buttons: [
+        {
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
     });
-    await alert.present();
+    await toast.present();
   }
 }

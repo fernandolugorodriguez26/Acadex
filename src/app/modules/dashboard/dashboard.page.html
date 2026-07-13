@@ -1,17 +1,22 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title><strong>Acadex</strong> Dashboard</ion-title>
+    <!-- Título simplificado a solo Acadex -->
+    <ion-title style="font-weight: 800; font-size: 1.3rem;">Acadex</ion-title>
+    
     <ion-buttons slot="end">
-      <div class="profile-trigger" routerLink="/profile">
-        <div class="user-info">
-          <p class="greeting">Hola,</p>
-          <p class="name">{{ userName }}</p>
-        </div>
+      <div class="profile-trigger chrome-greeting-container" routerLink="/profile">
+        
         <div class="avatar-wrapper">
           <ion-avatar>
             <img [src]="userPhoto || 'https://ui-avatars.com/api/?name=' + userName + '&background=3880ff&color=fff'" alt="Avatar" />
           </ion-avatar>
         </div>
+
+        <div class="user-info">
+          <span class="greeting">Hola,</span>
+          <span class="name">{{ userName }}</span>
+        </div>
+
       </div>
       <ion-button (click)="logout()" color="danger" class="ion-margin-start">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
@@ -20,125 +25,205 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" color="light">
+<ion-content class="dashboard-content ion-padding" color="light">
   
-  <ion-card class="calendar-card" style="display: flex; flex-direction: column;">
-    <ion-datetime presentation="date" [highlightedDates]="highlightedDates" (ionChange)="onDateChange($event)" size="cover"></ion-datetime>
-    <ion-button expand="block" fill="clear" color="tertiary" (click)="triggerIcsUpload()" style="margin: 0; border-top: 1px solid rgba(128,128,128,0.1);">
+  <!-- CALENDARIO MEJORADO -->
+  <ion-card class="calendar-card fade-in" style="padding: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
+      <ion-button fill="clear" size="small" (click)="prevMonth()" color="medium">
+        <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
+      </ion-button>
+      <h3 style="margin: 0; font-weight: 800; font-size: 1.3rem; text-transform: capitalize; color: var(--ion-text-color);">
+        {{ currentMonthName }}
+      </h3>
+      <ion-button fill="clear" size="small" (click)="nextMonth()" color="medium">
+        <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <!-- Letras de los días más grandes y en mayúsculas -->
+    <div style="display: flex; text-align: center; font-size: 0.95rem; text-transform: uppercase; color: var(--ion-color-medium); font-weight: 800; margin-bottom: 12px;">
+      <div style="flex: 1;" *ngFor="let day of weekDays">{{ day }}</div>
+    </div>
+    
+    <div *ngFor="let week of calendarGrid" style="display: flex; text-align: center; margin-bottom: 12px;">
+      <div style="flex: 1; position: relative; height: 45px; display: flex; flex-direction: column; align-items: center; cursor: pointer;" 
+           *ngFor="let dayObj of week" 
+           (click)="dayObj ? selectDate(dayObj.dateStr) : null">
+        
+        <ng-container *ngIf="dayObj">
+              <div [ngStyle]="{
+                'background': currentSelectedDate === dayObj.dateStr ? 'var(--ion-color-primary)' : (dayObj.hasTask ? 'rgba(var(--ion-color-primary-rgb), 0.15)' : 'transparent'), 
+                'color': currentSelectedDate === dayObj.dateStr ? '#ffffff' : (dayObj.hasClass ? '#8b5cf6' : (dayObj.hasTask ? 'var(--ion-color-primary)' : 'var(--ion-text-color)')), 
+                'border': dayObj.isToday && currentSelectedDate !== dayObj.dateStr ? '2px solid var(--ion-color-primary)' : '2px solid transparent',
+                'border-radius': '50%', 
+                'width': '38px', 
+                'height': '38px', 
+                'display': 'flex',
+                'justify-content': 'center',
+                'align-items': 'center',
+                'font-size': '1.1rem',
+                'font-weight': (currentSelectedDate === dayObj.dateStr || dayObj.hasTask || dayObj.hasClass || dayObj.isToday) ? 'bold' : '500',
+                'transition': 'all 0.2s ease-in-out'
+              }">
+            {{ dayObj.day }}
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+    
+    <ion-button expand="block" fill="clear" color="tertiary" (click)="triggerIcsUpload()" style="margin: 0; border-top: 1px solid var(--ion-color-step-100); padding-top: 8px;">
       <ion-icon name="sync-outline" slot="start"></ion-icon> Sincronizar Calendario
     </ion-button>
   </ion-card>
 
   <input type="file" id="ics-upload-dashboard" accept=".ics" style="display: none;" (change)="onIcsSelected($event)">
 
-  <div class="section-header ion-padding-start ion-padding-end">
-    <h3 class="section-title">Entregas de la fecha</h3>
-    <ion-button fill="clear" size="small" color="secondary" routerLink="/subjects">
-      <ion-icon slot="start" name="library-outline"></ion-icon> Materias
-    </ion-button>
+  <div *ngIf="selectedDateClasses && selectedDateClasses.length > 0" class="fade-in delay-1">
+    <div class="section-header ion-padding-start ion-padding-end">
+      <h3 class="section-title">Clases de hoy</h3>
+    </div>
+    <ion-list class="transparent-list">
+      <ion-item *ngFor="let clase of selectedDateClasses" class="class-card" lines="none">
+        <ion-icon name="school" slot="start" style="color: #8b5cf6; font-size: 1.5rem;"></ion-icon>
+        <ion-label>
+          <h2 style="font-weight: bold; color: var(--ion-text-color); font-size: 1.1rem;">{{ clase.name }}</h2>
+          <p style="color: var(--ion-color-medium); font-weight: 500;">
+            <ion-icon name="time-outline"></ion-icon> {{ clase.startTime }} <span *ngIf="clase.endTime">- {{ clase.endTime }}</span>
+          </p>
+        </ion-label>
+        <ion-badge slot="end" color="light" style="color: #8b5cf6; padding: 6px 10px; border-radius: 8px;">
+          {{ clase.code }}
+        </ion-badge>
+      </ion-item>
+    </ion-list>
   </div>
-  
-  <ion-list class="transparent-list" *ngIf="selectedDateTasks.length > 0">
-    <ion-item *ngFor="let task of selectedDateTasks" class="task-item" button="true" (click)="openTaskDetails(task)" detail="false">
-      <ion-checkbox slot="start" [checked]="task.isCompleted" (ionChange)="toggleComplete(task, $event)" (click)="$event.stopPropagation()"></ion-checkbox>
-      <ion-label>
-      <h2 [class.completed-text]="task.isCompleted">
-          {{ task.title }}
-          <ion-badge *ngIf="task.priority" [color]="getPriorityColor(task.priority)" style="font-size: 0.65rem; margin-left: 5px;">{{ task.priority }}</ion-badge>
+
+  <!-- ENTREGAS Y TAREAS -->
+  <div class="fade-in delay-2">
+    <div class="section-header ion-padding-start ion-padding-end">
+      <h3 class="section-title">Entregas de la fecha</h3>
+      <ion-button class="materias-btn" fill="solid" size="small" routerLink="/subjects">
+        <ion-icon slot="start" name="library-outline"></ion-icon> Materias
+      </ion-button>
+    </div>
+    
+    <ion-list class="transparent-list" *ngIf="selectedDateTasks.length > 0">
+      <ion-item *ngFor="let task of selectedDateTasks" class="task-card" lines="none" button="true" (click)="openTaskDetails(task)" detail="false">
+        <ion-checkbox slot="start" [checked]="task.isCompleted" (ionChange)="toggleComplete(task, $event)" (click)="$event.stopPropagation()" style="--size: 22px;"></ion-checkbox>
+        <ion-label>
+        <h2 [class.completed-text]="task.isCompleted" style="font-weight: 700; font-size: 1.05rem;">
+            {{ task.title }}
+            <ion-badge *ngIf="task.priority" [color]="getPriorityColor(task.priority)" style="font-size: 0.65rem; margin-left: 5px;">{{ task.priority }}</ion-badge>
+            <ion-badge *ngIf="task.grade !== undefined" color="success" style="font-size: 0.75rem; margin-left: 5px;">
+              <ion-icon name="star"></ion-icon> {{ task.grade }}/100
+            </ion-badge>
+          </h2>
           
-          <ion-badge *ngIf="task.grade !== undefined" color="success" style="font-size: 0.75rem; margin-left: 5px;">
-            <ion-icon name="star"></ion-icon> {{ task.grade }}/100
-          </ion-badge>
-        </h2>
-        
-        <p class="subject-badge"><ion-icon name="folder-outline"></ion-icon> {{ task.category || 'Tarea' }} &bull; <ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}</p>
-        
-        <ion-button *ngIf="task.isCompleted" fill="clear" size="small" color="warning" (click)="rateTask(task, $event)" style="margin-top: 5px; height: 25px; font-size: 0.8rem;">
-          <ion-icon name="ribbon-outline" slot="start"></ion-icon>
-          {{ task.grade !== undefined ? 'Modificar Nota' : 'Asignar Nota' }}
-        </ion-button>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+          <p class="subject-badge">
+            <ion-icon name="folder-outline"></ion-icon> {{ task.category || 'Tarea' }} &bull; 
+            <ion-icon name="book-outline"></ion-icon> {{ task.subjectName }}
+          </p>
+          
+          <ion-button *ngIf="task.isCompleted" fill="clear" size="small" color="warning" (click)="rateTask(task, $event)" style="margin-top: 5px; height: 25px; font-size: 0.8rem; --padding-start: 0;">
+            <ion-icon name="ribbon-outline" slot="start"></ion-icon>
+            {{ task.grade !== undefined ? 'Modificar Nota' : 'Asignar Nota' }}
+          </ion-button>
+        </ion-label>
+      </ion-item>
+    </ion-list>
 
-  <div class="empty-state" *ngIf="selectedDateTasks.length === 0">
-    <ion-icon name="checkmark-circle-outline" size="large" color="medium"></ion-icon>
-    <p>Día libre. ¡No hay tareas para esta fecha!</p>
+    <div class="empty-state" *ngIf="selectedDateTasks.length === 0">
+      <ion-icon name="checkmark-circle-outline" size="large" color="medium" style="opacity: 0.5;"></ion-icon>
+      <p>Día libre. ¡No hay tareas para esta fecha!</p>
+    </div>
   </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="z-index: 9999;">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="z-index: 9999; margin-bottom: 10px; margin-right: 5px;">
     <ion-fab-button routerLink="/tasks" color="tertiary">
-      <ion-icon name="add"></ion-icon>
+      <ion-icon name="add" size="large"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeTaskDetails()" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.65, 0.85, 1]">
+  <!-- MODAL DE EDICIÓN -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeTaskDetails()" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.65, 0.85, 1]" mode="ios">
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar>
-          <ion-title>{{ isEditingMode ? 'Editar Asignación' : 'Detalle de Asignación' }}</ion-title>
-          <ion-buttons slot="end"><ion-button (click)="closeTaskDetails()"><ion-icon name="close-circle" size="large"></ion-icon></ion-button></ion-buttons>
+          <ion-title style="font-weight: bold;">{{ isEditingMode ? 'Editar Asignación' : 'Detalle de Tarea' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeTaskDetails()" color="medium">
+              <ion-icon name="close-circle" size="large"></ion-icon>
+            </ion-button>
+          </ion-buttons>
         </ion-toolbar>
       </ion-header>
 
-      <ion-content class="ion-padding" *ngIf="selectedTask">
-        <div *ngIf="!isEditingMode">
-          <h2 style="font-weight: 700; font-size: 1.4rem;">{{ selectedTask.title }}</h2>
-          <div style="margin-bottom: 20px;">
-            <ion-badge [color]="getPriorityColor(selectedTask.priority)">{{ selectedTask.priority }}</ion-badge>
-            <ion-badge color="medium" style="margin-left: 8px;">{{ selectedTask.category }}</ion-badge>
-          </div>
-          <ion-list lines="none" class="transparent-list">
-            <ion-item><ion-icon name="book-outline" slot="start" color="primary"></ion-icon><ion-label><h3>Materia</h3><p>{{ selectedTask.subjectName }}</p></ion-label></ion-item>
-            <ion-item><ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon><ion-label><h3>Vencimiento</h3><p>{{ selectedTask.dueDate | date:'dd/MM/yyyy' }}</p></ion-label></ion-item>
-            <ion-item *ngIf="selectedTask.notes"><ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon><ion-label class="ion-text-wrap"><h3>Notas</h3><p style="padding: 10px; background: rgba(0,0,0,0.03); border-radius: 8px;">{{ selectedTask.notes }}</p></ion-label></ion-item>
-            <ion-item *ngIf="selectedTask.attachmentUrl"><ion-icon name="document-attach-outline" slot="start" color="primary"></ion-icon><ion-label><h3>Adjunto</h3><a [href]="selectedTask.attachmentUrl" target="_blank">Ver {{ selectedTask.fileName || 'Archivo' }}</a></ion-label></ion-item>
-          </ion-list>
-          <ion-row>
-            <ion-col size="6"><ion-button expand="block" fill="outline" (click)="enableEditMode()">Editar</ion-button></ion-col>
-            <ion-col size="6"><ion-button expand="block" color="danger" fill="outline" (click)="deleteTaskFromModal()">Eliminar</ion-button></ion-col>
-          </ion-row>
-        </div>
-
-        <div *ngIf="isEditingMode">
-          <form [formGroup]="editTaskForm" (ngSubmit)="saveEditedTask()">
-            <ion-item fill="outline" class="ion-margin-bottom"><ion-input label="Título *" labelPlacement="floating" type="text" formControlName="title"></ion-input></ion-item>
-            <ion-row>
-              <ion-col size="6">
-                <ion-item fill="outline" class="ion-margin-bottom">
-                  <ion-select label="Tipo" labelPlacement="floating" formControlName="category">
-                    <ion-select-option value="Tarea">Tarea</ion-select-option>
-                    <ion-select-option value="Proyecto">Proyecto</ion-select-option>
-                    <ion-select-option value="Prueba Final">Prueba Final</ion-select-option>
-                    <ion-select-option value="Foro">Foro</ion-select-option>
-                  </ion-select>
-                </ion-item>
-              </ion-col>
-              <ion-col size="6">
-                <ion-item fill="outline" class="ion-margin-bottom">
-                  <ion-select label="Prioridad" labelPlacement="floating" formControlName="priority">
-                    <ion-select-option value="Baja">Baja</ion-select-option>
-                    <ion-select-option value="Media">Media</ion-select-option>
-                    <ion-select-option value="Alta">Alta</ion-select-option>
-                    <ion-select-option value="Crítica">Crítica</ion-select-option>
-                  </ion-select>
-                </ion-item>
-              </ion-col>
+      <ion-content class="dashboard-content ion-padding">
+        
+        <div *ngIf="selectedTask">
+          
+          <div *ngIf="!isEditingMode" class="fade-in">
+            <h2 style="font-weight: 800; font-size: 1.6rem; margin-top: 0; color: var(--ion-text-color);">{{ selectedTask.title }}</h2>
+            <div style="margin-bottom: 25px;">
+              <ion-badge [color]="getPriorityColor(selectedTask.priority)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">{{ selectedTask.priority }}</ion-badge>
+              <ion-badge color="light" style="margin-left: 8px; padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; color: var(--ion-color-medium);">{{ selectedTask.category }}</ion-badge>
+            </div>
+            <ion-list lines="none" class="transparent-list">
+              <ion-item class="task-card" style="margin-bottom: 10px;"><ion-icon name="book-outline" slot="start" color="primary"></ion-icon><ion-label><h3 style="color: var(--ion-color-medium); font-size: 0.85rem;">Materia</h3><p style="font-weight: bold; color: var(--ion-text-color); font-size: 1rem;">{{ selectedTask.subjectName }}</p></ion-label></ion-item>
+              <ion-item class="task-card" style="margin-bottom: 10px;"><ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon><ion-label><h3 style="color: var(--ion-color-medium); font-size: 0.85rem;">Vencimiento</h3><p style="font-weight: bold; color: var(--ion-text-color); font-size: 1rem;">{{ selectedTask.dueDate | date:'dd/MM/yyyy' }}</p></ion-label></ion-item>
+              <ion-item *ngIf="selectedTask.notes" class="task-card" style="margin-bottom: 10px;"><ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon><ion-label class="ion-text-wrap"><h3 style="color: var(--ion-color-medium); font-size: 0.85rem;">Notas</h3><p style="font-weight: 500; color: var(--ion-text-color); font-size: 0.95rem; margin-top: 5px;">{{ selectedTask.notes }}</p></ion-label></ion-item>
+              <ion-item *ngIf="selectedTask.attachmentUrl" class="task-card" style="margin-bottom: 10px;"><ion-icon name="document-attach-outline" slot="start" color="primary"></ion-icon><ion-label><h3 style="color: var(--ion-color-medium); font-size: 0.85rem;">Archivo Adjunto</h3><a [href]="selectedTask.attachmentUrl" target="_blank" style="font-weight: bold; text-decoration: none; color: var(--ion-color-primary);">Descargar {{ selectedTask.fileName || 'Documento' }}</a></ion-label></ion-item>
+            </ion-list>
+            <ion-row style="margin-top: 20px;">
+              <ion-col size="6"><ion-button expand="block" fill="outline" color="dark" (click)="enableEditMode()" style="--border-radius: 12px; font-weight: bold;">Editar</ion-button></ion-col>
+              <ion-col size="6"><ion-button expand="block" color="danger" fill="outline" (click)="deleteTaskFromModal()" style="--border-radius: 12px; font-weight: bold;">Eliminar</ion-button></ion-col>
             </ion-row>
-            <ion-item fill="outline" class="ion-margin-bottom">
-              <ion-select label="Materia *" labelPlacement="floating" formControlName="subjectName" (ionChange)="onSubjectChange($event, 'edit')">
-                <ion-select-option value="NEW_SUBJECT" style="font-weight: bold;">➕ Añadir materia...</ion-select-option>
-                <ion-select-option *ngFor="let sub of subjects$ | async" [value]="sub.name">{{ sub.name }}</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item fill="outline" class="ion-margin-bottom"><ion-input label="Fecha *" labelPlacement="floating" type="date" formControlName="dueDate"></ion-input></ion-item>
-            <ion-item fill="outline" class="ion-margin-bottom"><ion-textarea label="Notas Rápidas" labelPlacement="floating" formControlName="notes" rows="2"></ion-textarea></ion-item>
-            <ion-item fill="outline" class="ion-margin-bottom"><ion-label position="stacked">Reemplazar archivo (Opcional)</ion-label><input type="file" (change)="onFileSelected($event)" style="margin-top: 10px;" /></ion-item>
-            <ion-button expand="block" type="submit">Guardar Cambios</ion-button>
-            <ion-button expand="block" fill="clear" color="medium" (click)="cancelEditMode()">Cancelar Edición</ion-button>
-          </form>
+          </div>
+
+          <div *ngIf="isEditingMode" class="fade-in">
+            <form [formGroup]="editTaskForm" (ngSubmit)="saveEditedTask()">
+              <ion-item fill="outline" class="custom-input"><ion-input label="Título *" labelPlacement="floating" type="text" formControlName="title"></ion-input></ion-item>
+              <ion-row>
+                <ion-col size="6" class="ion-no-padding" style="padding-right: 5px;">
+                  <ion-item fill="outline" class="custom-input">
+                    <ion-select label="Tipo" labelPlacement="floating" formControlName="category">
+                      <ion-select-option value="Tarea">Tarea</ion-select-option>
+                      <ion-select-option value="Proyecto">Proyecto</ion-select-option>
+                      <ion-select-option value="Prueba Final">Prueba Final</ion-select-option>
+                      <ion-select-option value="Foro">Foro</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="6" class="ion-no-padding" style="padding-left: 5px;">
+                  <ion-item fill="outline" class="custom-input">
+                    <ion-select label="Prioridad" labelPlacement="floating" formControlName="priority">
+                      <ion-select-option value="Baja">Baja</ion-select-option>
+                      <ion-select-option value="Media">Media</ion-select-option>
+                      <ion-select-option value="Alta">Alta</ion-select-option>
+                      <ion-select-option value="Crítica">Crítica</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-item fill="outline" class="custom-input">
+                <ion-select label="Materia *" labelPlacement="floating" formControlName="subjectName" (ionChange)="onSubjectChange($event, 'edit')">
+                  <ion-select-option value="NEW_SUBJECT" style="font-weight: bold;">➕ Añadir materia...</ion-select-option>
+                  <ion-select-option *ngFor="let sub of subjects$ | async" [value]="sub.name">{{ sub.name }}</ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item fill="outline" class="custom-input"><ion-input label="Fecha *" labelPlacement="floating" type="date" formControlName="dueDate"></ion-input></ion-item>
+              <ion-item fill="outline" class="custom-input"><ion-textarea label="Notas Rápidas" labelPlacement="floating" formControlName="notes" rows="2"></ion-textarea></ion-item>
+              <ion-item fill="outline" class="custom-input"><ion-label position="stacked" style="color: var(--ion-color-medium); font-size: 0.85rem; padding-bottom: 5px;">Reemplazar archivo adjunto</ion-label><input type="file" (change)="onFileSelected($event)" style="margin-top: 10px; color: var(--ion-text-color);" /></ion-item>
+              <ion-button expand="block" type="submit" class="submit-btn" [disabled]="editTaskForm.invalid">Guardar Cambios</ion-button>
+              <ion-button expand="block" fill="clear" color="medium" (click)="cancelEditMode()" style="margin-top: 10px; font-weight: bold;">Cancelar Edición</ion-button>
+            </form>
+          </div>
+
         </div>
       </ion-content>
     </ng-template>
   </ion-modal>
+
 </ion-content>

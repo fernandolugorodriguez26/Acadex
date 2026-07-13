@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, query, where, addDoc, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, query, where, addDoc, doc, updateDoc, deleteDoc, getDocs } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
@@ -39,6 +39,15 @@ export class DataService {
   deleteTask(taskId: string) {
     const taskDocRef = doc(this.firestore, `tasks/${taskId}`);
     return deleteDoc(taskDocRef);
+  }
+
+  async deleteTasksBySubject(subjectName: string) {
+    const tasksRef = collection(this.firestore, 'tasks');
+    const q = query(tasksRef, where('userId', '==', this.userId), where('subjectName', '==', subjectName));
+    const snapshot = await getDocs(q);
+    
+    const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(this.firestore, `tasks/${docSnap.id}`)));
+    return Promise.all(deletePromises);
   }
 
   async uploadTaskAttachment(file: File): Promise<string> {

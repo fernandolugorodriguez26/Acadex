@@ -1,48 +1,110 @@
-<ion-content class="ion-padding" color="light">
+<ion-content class="auth-content">
   <div class="auth-container">
-    <div class="logo-section">
+    
+    <div class="brand-header">
+      <ion-icon name="layers" class="brand-logo"></ion-icon>
       <h1>Acadex</h1>
-      <p>Tu espacio de estudio organizado</p>
+      <p>Tus asignaciones bajo control</p>
     </div>
 
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title class="ion-text-center">
-          {{ isLoginMode ? 'Iniciar Sesión' : 'Registro de Estudiante' }}
-        </ion-card-title>
+    <ion-card class="form-card">
+      <ion-card-header class="ion-text-center">
+        <ion-card-title>{{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}</ion-card-title>
+        <p class="subtitle" *ngIf="!isLoginMode">Únete y organiza tu vida académica</p>
       </ion-card-header>
 
       <ion-card-content>
         <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
           
-          <ng-container *ngIf="!isLoginMode">
-            <ion-item fill="outline" class="ion-margin-bottom">
-              <ion-input label="Nombre del estudiante" labelPlacement="floating" type="text" formControlName="nombre" placeholder="Ej: Fernando"></ion-input>
+          <div *ngIf="!isLoginMode" class="fade-in-section">
+            <ion-row>
+              <ion-col size="6" class="ion-no-padding" style="padding-right: 5px;">
+                <ion-item fill="outline" class="custom-input">
+                  <ion-input label="Nombre *" labelPlacement="floating" type="text" formControlName="nombre"></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6" class="ion-no-padding" style="padding-left: 5px;">
+                <ion-item fill="outline" class="custom-input">
+                  <ion-input label="Apellido *" labelPlacement="floating" type="text" formControlName="apellido"></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-item fill="outline" class="custom-input">
+              <ion-input label="Universidad (Opcional)" labelPlacement="floating" type="text" formControlName="universidad"></ion-input>
             </ion-item>
 
-            <ion-item fill="outline" class="ion-margin-bottom">
-              <ion-input label="Apellido del estudiante" labelPlacement="floating" type="text" formControlName="apellido" placeholder="Ej: Lugo"></ion-input>
+            <ion-row>
+              <ion-col size="6" class="ion-no-padding" style="padding-right: 5px;">
+                <ion-item fill="outline" class="custom-input">
+                  <ion-input label="Carrera (Opc)" labelPlacement="floating" type="text" formControlName="carrera"></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6" class="ion-no-padding" style="padding-left: 5px;">
+                <ion-item fill="outline" class="custom-input">
+                  <ion-input label="Matrícula (Opc)" labelPlacement="floating" type="text" formControlName="matricula"></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </div>
+
+          <ion-item fill="outline" class="custom-input" [class.ion-invalid]="authForm.get('email')?.invalid && authForm.get('email')?.touched">
+            <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+            <ion-input label="Correo Electrónico *" labelPlacement="floating" type="email" formControlName="email" placeholder="estudiante@uapa.edu.do"></ion-input>
+          </ion-item>
+          
+          <p class="error-msg" *ngIf="authForm.get('email')?.hasError('pattern') && authForm.get('email')?.touched">
+            <ion-icon name="warning"></ion-icon> Formato de correo no válido.
+          </p>
+
+          <ion-item fill="outline" class="custom-input">
+            <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+            <ion-input 
+              label="Contraseña *" 
+              labelPlacement="floating" 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="password">
+              <ion-button slot="end" fill="clear" color="medium" (click)="togglePasswordVisibility('pass')" type="button" class="eye-btn">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-input>
+          </ion-item>
+
+          <div *ngIf="!isLoginMode" class="fade-in-section">
+            <ion-item fill="outline" class="custom-input">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="medium"></ion-icon>
+              <ion-input 
+                label="Confirmar Contraseña *" 
+                labelPlacement="floating" 
+                [type]="showConfirmPassword ? 'text' : 'password'" 
+                formControlName="confirmPassword">
+                <ion-button slot="end" fill="clear" color="medium" (click)="togglePasswordVisibility('confirm')" type="button" class="eye-btn">
+                  <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-input>
             </ion-item>
-          </ng-container>
 
-          <ion-item fill="outline" class="ion-margin-bottom">
-            <ion-input label="Correo electrónico" labelPlacement="floating" type="email" formControlName="email" placeholder="ejemplo@correo.com"></ion-input>
-          </ion-item>
+            <p class="error-msg" *ngIf="authForm.hasError('passwordMismatch') && authForm.get('confirmPassword')?.touched">
+              <ion-icon name="alert-circle"></ion-icon> Las contraseñas no coinciden.
+            </p>
+          </div>
 
-          <ion-item fill="outline" class="ion-margin-bottom">
-            <ion-input label="Contraseña (Mín. 6 caracteres)" labelPlacement="floating" type="password" formControlName="password"></ion-input>
-          </ion-item>
+          <div *ngIf="isLoginMode" class="forgot-password">
+            <a (click)="forgotPassword()">¿Olvidaste tu contraseña?</a>
+          </div>
 
-          <ion-button expand="block" type="submit" [disabled]="authForm.invalid" class="ion-margin-top">
-            {{ isLoginMode ? 'Entrar' : 'Crear cuenta' }}
+          <ion-button expand="block" type="submit" [disabled]="authForm.invalid" class="submit-btn">
+            {{ isLoginMode ? 'Ingresar a Acadex' : 'Crear mi cuenta' }}
           </ion-button>
         </form>
 
-        <div class="toggle-mode ion-text-center ion-margin-top">
-          <a (click)="toggleMode()">
-            {{ isLoginMode ? '¿No tienes cuenta? Regístrate aquí' : '¿Ya tienes cuenta? Inicia sesión' }}
-          </a>
+        <div class="toggle-mode">
+          <p>
+            {{ isLoginMode ? '¿Aún no tienes cuenta?' : '¿Ya eres miembro?' }}
+            <a (click)="toggleMode()">{{ isLoginMode ? 'Regístrate aquí' : 'Inicia sesión' }}</a>
+          </p>
         </div>
+
       </ion-card-content>
     </ion-card>
   </div>

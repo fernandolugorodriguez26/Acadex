@@ -1,15 +1,16 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/dashboard" color="primary"></ion-back-button>
     </ion-buttons>
-    <ion-title>Mi Perfil</ion-title>
+    <ion-title style="font-weight: 800; font-size: 1.3rem;">Mi Perfil</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" color="light">
+<ion-content class="profile-content" color="light">
   <input type="file" accept="image/*" hidden #fileInput (change)="onFileSelected($event)">
-  <div class="profile-header ion-text-center">
+  
+  <div class="profile-header ion-text-center fade-in">
     <div class="avatar-container" (click)="fileInput.click()">
       <ion-avatar class="main-avatar">
         <img [src]="getAvatarUrl()" alt="Perfil" />
@@ -20,78 +21,118 @@
     </div>
     <h2>{{ nombre }} {{ apellido }}</h2>
     <p color="medium">{{ email }}</p>
-
-    <ion-row class="stats-row ion-margin-top">
-      <ion-col>
-        <h3>15</h3>
-        <p>Tareas Listas</p>
-      </ion-col>
-      <ion-col>
-        <h3>4</h3>
-        <p>Materias</p>
-      </ion-col>
-    </ion-row>
   </div>
 
-  <ion-list inset="true" class="custom-list">
+  <ion-row class="stats-card fade-in delay-1">
+    <ion-col class="stat-col">
+      <div class="icon-wrapper success-bg">
+        <ion-icon name="checkmark-done-circle"></ion-icon>
+      </div>
+      <h3 style="color: var(--ion-color-success);">{{ completedTasksCount }}</h3>
+      <p>Tareas<br>Completadas</p>
+    </ion-col>
+    
+    <ion-col class="stat-col">
+      <div class="icon-wrapper warning-bg">
+        <ion-icon name="hourglass"></ion-icon>
+      </div>
+      <h3 style="color: var(--ion-color-warning);">{{ pendingTasksCount }}</h3>
+      <p>Tareas<br>Pendientes</p>
+    </ion-col>
+    
+    <ion-col class="stat-col">
+      <div class="icon-wrapper tertiary-bg">
+        <ion-icon name="library"></ion-icon>
+      </div>
+      <h3 style="color: #8b5cf6;">{{ subjectsCount }}</h3>
+      <p>Materias<br>Activas</p>
+    </ion-col>
+  </ion-row>
+
+  <ion-list class="custom-list fade-in delay-1">
     <ion-list-header>
-      <ion-label>Datos de Estudiante</ion-label>
+      <ion-label>Perfil Académico</ion-label>
     </ion-list-header>
 
-    <ion-item>
-      <ion-icon name="school-outline" slot="start" color="primary"></ion-icon>
-      <ion-input label="Universidad" labelPlacement="stacked" [(ngModel)]="universidad"></ion-input>
+    <ion-item lines="inset">
+      <div slot="start" class="icon-box primary-box">
+        <ion-icon name="school"></ion-icon>
+      </div>
+      <ion-input label="Universidad" labelPlacement="stacked" [(ngModel)]="universidad" placeholder="Ej. UAPA"></ion-input>
     </ion-item>
 
-    <ion-item>
-      <ion-icon name="book-outline" slot="start" color="primary"></ion-icon>
-      <ion-input label="Carrera" labelPlacement="stacked" [(ngModel)]="carrera"></ion-input>
+    <ion-item lines="inset">
+      <div slot="start" class="icon-box secondary-box">
+        <ion-icon name="book"></ion-icon>
+      </div>
+      <ion-input label="Carrera" labelPlacement="stacked" [(ngModel)]="carrera" placeholder="Ej. ISW"></ion-input>
     </ion-item>
 
     <ion-item lines="none">
-      <ion-icon name="id-card-outline" slot="start" color="primary"></ion-icon>
-      <ion-input label="Matrícula" labelPlacement="stacked" [(ngModel)]="matricula"></ion-input>
+      <div slot="start" class="icon-box tertiary-box">
+        <ion-icon name="id-card"></ion-icon>
+      </div>
+      <ion-input label="Matrícula" labelPlacement="stacked" [(ngModel)]="matricula" placeholder="Ej. 100000"></ion-input>
     </ion-item>
   </ion-list>
 
-  <ion-button expand="block" class="ion-margin" (click)="saveProfile()">
-    <ion-icon name="save-outline" slot="start"></ion-icon>
-    Guardar Cambios
-  </ion-button>
+  <div class="button-container fade-in delay-1">
+    <ion-button expand="block" class="premium-btn" (click)="saveProfile()">
+      <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+      Guardar Datos
+    </ion-button>
+  </div>
 
-  <ion-list inset="true" class="custom-list">
+  <ion-list inset="true" class="custom-list fade-in delay-2">
     <ion-list-header>
-      <ion-label>Preferencias</ion-label>
+      <ion-label>Preferencias de la App</ion-label>
     </ion-list-header>
 
-<ion-item>
-  <ion-icon name="color-palette-outline" slot="start" color="primary"></ion-icon>
-  <ion-select label="Apariencia" [(ngModel)]="themeMode" (ionChange)="onThemeChange($event)" interface="popover">
-    <ion-select-option value="light">Claro</ion-select-option>
-    <ion-select-option value="dark">Oscuro</ion-select-option>
-    <ion-select-option value="system">Automático (Sistema)</ion-select-option>
-  </ion-select>
-</ion-item>
-
-    <ion-item lines="none">
-      <ion-icon name="notifications-outline" slot="start"></ion-icon>
-      <ion-toggle [(ngModel)]="notificationsEnabled">Notificaciones</ion-toggle>
+    <ion-item lines="inset">
+      <ion-icon name="color-palette-outline" slot="start" color="primary"></ion-icon>
+      <ion-select label="Apariencia (Tema)" [(ngModel)]="themeMode" (ionChange)="onThemeChange($event)" interface="popover">
+        <ion-select-option value="light">Modo Claro</ion-select-option>
+        <ion-select-option value="dark">Modo Oscuro</ion-select-option>
+        <ion-select-option value="system">Automático (Sistema)</ion-select-option>
+      </ion-select>
     </ion-item>
+
+    <ion-item [lines]="notificationsEnabled ? 'inset' : 'none'">
+      <ion-icon name="notifications-outline" slot="start" color="primary"></ion-icon>
+      <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="toggleNotifications()" color="primary">Notificaciones</ion-toggle>
+    </ion-item>
+
+    <div *ngIf="notificationsEnabled" style="background: rgba(var(--ion-color-step-50-rgb), 0.5);">
+      <ion-item lines="inset">
+        <ion-icon name="calendar-clear-outline" slot="start" color="medium"></ion-icon>
+        <ion-select label="Avisar antes de entrega" labelPlacement="stacked" [(ngModel)]="notificationDays" interface="popover">
+          <ion-select-option [value]="1">1 día antes</ion-select-option>
+          <ion-select-option [value]="2">2 días antes</ion-select-option>
+          <ion-select-option [value]="3">3 días antes</ion-select-option>
+          <ion-select-option [value]="7">1 semana antes</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-icon name="time-outline" slot="start" color="medium"></ion-icon>
+        <ion-input label="Hora de la alarma" labelPlacement="stacked" type="time" [(ngModel)]="notificationTime"></ion-input>
+      </ion-item>
+    </div>
   </ion-list>
 
-  <ion-list inset="true" class="danger-zone">
+  <ion-list inset="true" class="custom-list danger-zone fade-in delay-3">
     <ion-list-header>
-      <ion-label color="danger">Seguridad</ion-label>
+      <ion-label>Seguridad</ion-label>
     </ion-list-header>
 
-    <ion-item button detail="true" (click)="changePassword()">
-      <ion-icon name="key-outline" slot="start" color="warning"></ion-icon>
-      <ion-label>Cambiar Contraseña</ion-label>
+    <ion-item button detail="true" (click)="changePassword()" lines="inset">
+      <ion-icon name="key" slot="start" color="warning"></ion-icon>
+      <ion-label style="font-weight: 600;">Cambiar Contraseña</ion-label>
     </ion-item>
 
-    <ion-item button lines="none" (click)="deleteAccount()">
-      <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
-      <ion-label color="danger">Eliminar mi cuenta</ion-label>
+    <ion-item button detail="false" lines="none" (click)="deleteAccount()">
+      <ion-icon name="trash" slot="start" color="danger"></ion-icon>
+      <ion-label color="danger" style="font-weight: 600;">Eliminar cuenta de Acadex</ion-label>
     </ion-item>
   </ion-list>
 

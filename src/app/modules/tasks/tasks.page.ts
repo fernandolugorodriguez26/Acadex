@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from '../../core/services/data';
+// [NUEVO] Importamos el servicio de notificaciones
+import { NotificationService } from '../../core/services/notification.service'; 
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
@@ -38,6 +40,8 @@ export class TasksPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dataService: DataService,
+    // [NUEVO] Inyectamos el servicio en el constructor
+    private notificationService: NotificationService,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController
@@ -123,11 +127,9 @@ export class TasksPage implements OnInit {
     await loading.present();
 
     try {
-      // EL FIX ESTÁ AQUÍ: Agregamos "|| null" para evitar el "undefined" que bloquea Firebase
       let attachmentUrl = this.selectedTask.attachmentUrl || null;
       let fileName = this.selectedTask.fileName || null;
 
-      // Si subió un archivo nuevo en la edición, lo subimos y reemplazamos
       if (this.selectedEditFile) {
         attachmentUrl = await this.dataService.uploadTaskAttachment(this.selectedEditFile);
         fileName = this.selectedEditFile.name;
@@ -141,11 +143,14 @@ export class TasksPage implements OnInit {
       
       await this.dataService.updateTask(this.selectedTask.id, finalTaskData);
       
+      // [NUEVO] Reprogramar notificación en caso de que la fecha haya cambiado
+      await this.notificationService.scheduleTaskNotification({ id: this.selectedTask.id, ...finalTaskData });
+      
       this.showToast('Asignación actualizada con éxito', 'success');
-      this.closeTaskDetails(); // Cerramos el modal
+      this.closeTaskDetails(); 
       await loading.dismiss();
     } catch (error) {
-      console.error('Error detallado de Firebase:', error); // Por si acaso hay otro fallo, lo veremos en consola
+      console.error('Error detallado de Firebase:', error); 
       await loading.dismiss();
       this.showToast('Error al actualizar', 'danger');
     }
@@ -159,7 +164,6 @@ export class TasksPage implements OnInit {
   // ==========================================
   // CREACIÓN RÁPIDA DE MATERIAS
   // ==========================================
-  // Ahora recibe 'formType' para saber a cuál formulario inyectar la materia
   async onSubjectChange(event: any, formType: 'new' | 'edit') {
     if (event.detail.value === 'NEW_SUBJECT') {
       const alert = await this.alertCtrl.create({
@@ -205,7 +209,7 @@ export class TasksPage implements OnInit {
   }
 
   // ==========================================
-  // LÓGICA DE CREACIÓN NUEVA TAREA (Página principal)
+  // LÓGICA DE CREACIÓN NUEVA TAREA
   // ==========================================
   async addTask() {
     if (this.taskForm.invalid) return;
@@ -225,7 +229,11 @@ export class TasksPage implements OnInit {
         fileName: this.selectedFile ? this.selectedFile.name : null
       };
 
-      await this.dataService.addTask(finalTaskData);
+      // Recibimos el resultado para obtener el ID de la nueva tarea
+      const result = await this.dataService.addTask(finalTaskData);
+      
+      // [NUEVO] Programar la notificación local
+      await this.notificationService.scheduleTaskNotification({ id: result.id, ...finalTaskData });
       
       this.taskForm.reset({ isCompleted: false, category: 'Tarea', priority: 'Media', subjectName: '', notes: '' });
       this.selectedFile = null;
@@ -299,7 +307,17 @@ export class TasksPage implements OnInit {
       const isNowCompleted = !task.isCompleted;
       const completedDate = isNowCompleted ? new Date().toISOString().split('T')[0] : null;
       await this.dataService.updateTask(task.id, { isCompleted: isNowCompleted, completedDate: completedDate });
-    } catch (error) { this.showToast('Error al actualizar', 'danger'); }
+      
+      // [NUEVO] Si se completa, cancelamos la alarma. Si se desmarca, la reprogramamos
+      if (isNowCompleted) {
+        await this.notificationService.cancelTaskNotification({ id: task.id });
+      } else {
+        await this.notificationService.scheduleTaskNotification({ ...task, isCompleted: isNowCompleted });
+      }
+
+    } catch (error) { 
+      this.showToast('Error al actualizar', 'danger'); 
+    }
   }
 
   async rateTask(task: any, event?: Event) {
@@ -333,8 +351,14 @@ export class TasksPage implements OnInit {
   async deleteTask(taskId: string) {
     try {
       await this.dataService.deleteTask(taskId);
+      
+      // [NUEVO] Eliminar la alarma programada al borrar la tarea
+      await this.notificationService.cancelTaskNotification({ id: taskId });
+      
       this.showToast('Tarea eliminada', 'warning');
-    } catch (error) { this.showToast('Error al eliminar', 'danger'); }
+    } catch (error) { 
+      this.showToast('Error al eliminar', 'danger'); 
+    }
   }
 
   getPriorityColor(priority: string): string {

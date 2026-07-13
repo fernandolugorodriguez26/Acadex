@@ -1,27 +1,136 @@
-.form-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-  margin-bottom: 25px;
+/* =======================================
+   FONDO GLOBAL Y ANIMACIONES
+   ======================================= */
+.subjects-content {
+  --background: var(--ion-background-color);
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+
+/* =======================================
+   TARJETA DEL FORMULARIO
+   ======================================= */
+.form-card {
+  border-radius: 24px;
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-color-step-100);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  padding: 10px 5px;
+
+  ion-card-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--ion-text-color);
+  }
+}
+
+/* INPUTS MODERNOS */
+.custom-input {
+  --border-radius: 14px;
+  --border-width: 1.5px;
+  --background: var(--ion-color-step-50);
+  --border-color: var(--ion-color-step-150);
+  --highlight-height: 0;
+  --padding-start: 15px;
+  margin-bottom: 16px;
+  color: var(--ion-text-color);
+
+  &.item-has-focus {
+    --border-color: var(--ion-color-primary);
+    --background: var(--ion-background-color);
+  }
+}
+
+.submit-btn {
+  margin-top: 10px;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 20px rgba(var(--ion-color-primary-rgb), 0.35);
+  font-weight: bold;
+  height: 52px;
+}
+
+/* =======================================
+   LISTA DE MATERIAS
+   ======================================= */
 .section-title {
-  font-weight: 700;
-  color: var(--ion-color-dark);
-  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--ion-text-color);
+  font-size: 1.3rem;
+  margin-bottom: 15px;
 }
 
 .transparent-list {
   background: transparent;
+  padding: 0;
+}
+
+.subject-card {
+  --background: var(--ion-card-background);
+  --border-radius: 16px;
+  --padding-start: 15px; 
+  --inner-border-width: 0; 
   
-  .subject-item {
-    --border-radius: 8px;
-    margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 16px; 
+  margin: 0 16px 15px 16px; 
+  
+  border: 1px solid var(--ion-color-step-100);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
 .empty-state {
   text-align: center;
-  padding: 20px;
+  padding: 30px 20px;
   color: var(--ion-color-medium);
+  background: var(--ion-color-step-50);
+  border-radius: 20px;
+  border: 1px dashed var(--ion-color-step-200);
+  margin: 10px 0;
+  
+  p { margin-top: 10px; font-weight: 500; }
+}
+
+/* =======================================
+   MODAL DE CALIFICACIONES
+   ======================================= */
+.grade-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 10px;
+
+  h3 {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ion-text-color);
+  }
+  
+  p {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+.grade-box {
+  background: rgba(var(--ion-color-primary-rgb), 0.05);
+  border: 1px dashed var(--ion-color-primary);
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 20px;
+  text-align: center;
 }

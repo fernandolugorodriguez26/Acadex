@@ -3,6 +3,9 @@ import { Auth, onAuthStateChanged, sendPasswordResetEmail, deleteUser, updatePro
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
+import { LocalNotifications } from '@capacitor/local-notifications';
+// [NUEVO] Importamos el DataService para leer tareas y materias
+import { DataService } from '../../core/services/data';
 
 @Component({
   selector: 'app-profile',
@@ -21,7 +24,15 @@ export class ProfilePage implements OnInit {
   matricula: string = '';
 
   themeMode: string = 'system';
+  
   notificationsEnabled: boolean = true;
+  notificationDays: number = 2; 
+  notificationTime: string = '10:00'; 
+
+  // [NUEVO] Contadores dinámicos para las estadísticas
+  completedTasksCount: number = 0;
+  pendingTasksCount: number = 0;
+  subjectsCount: number = 0;
 
   constructor(
     private auth: Auth,
@@ -29,12 +40,11 @@ export class ProfilePage implements OnInit {
     private storage: Storage, 
     private alertController: AlertController,
     private navCtrl: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    // [NUEVO] Inyectamos el servicio
+    private dataService: DataService
   ) {}
 
-  // [INICIALIZACIÓN DE PERFIL]
-  // Limpio configuraciones obsoletas, recupero el tema activo y sincronizo los datos 
-  // del usuario tanto desde Firebase Auth como desde Firestore.
   ngOnInit() {
     localStorage.removeItem('acadex_dark_mode');
     this.themeMode = localStorage.getItem('acadex_theme') || 'system';
@@ -54,6 +64,16 @@ export class ProfilePage implements OnInit {
         
         this.photoUrl = user.photoURL || '';
 
+        // [NUEVO] Suscripción a Tareas y Materias en tiempo real
+        this.dataService.getTasks().subscribe(tasks => {
+          this.completedTasksCount = tasks.filter(t => t.isCompleted).length;
+          this.pendingTasksCount = tasks.filter(t => !t.isCompleted).length;
+        });
+
+        this.dataService.getSubjects().subscribe(subjects => {
+          this.subjectsCount = subjects.length;
+        });
+
         try {
           const userDocRef = doc(this.firestore, `users/${user.uid}`);
           const userDocSnap = await getDoc(userDocRef);
@@ -63,6 +83,10 @@ export class ProfilePage implements OnInit {
             this.universidad = data['universidad'] || '';
             this.carrera = data['carrera'] || '';
             this.matricula = data['matricula'] || '';
+            
+            this.notificationsEnabled = data['notificationsEnabled'] !== undefined ? data['notificationsEnabled'] : true;
+            this.notificationDays = data['notificationDays'] || 2;
+            this.notificationTime = data['notificationTime'] || '10:00';
           }
         } catch (error) {
           console.error("Error leyendo datos del perfil:", error);
@@ -77,9 +101,6 @@ export class ProfilePage implements OnInit {
     return `https://ui-avatars.com/api/?name=${nombreParaAvatar}+${this.apellido}&background=3880ff&color=fff&size=150`;
   }
 
-  // [GESTIÓN DE APARIENCIA]
-  // Aplico el esquema de color seleccionado y persisto la elección en localStorage
-  // para mantener la preferencia entre sesiones.
   onThemeChange(event: any) {
     this.themeMode = event.detail.value;
     localStorage.setItem('acadex_theme', this.themeMode);
@@ -98,9 +119,20 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // [UPLOAD Y ALMACENAMIENTO]
-  // Proceso la subida de archivos a Firebase Storage, actualizando la URL en Firebase Auth
-  // para reflejar el cambio de imagen de perfil de forma inmediata.
+  async toggleNotifications() {
+    if (this.notificationsEnabled) {
+      try {
+        const permStatus = await LocalNotifications.requestPermissions();
+        if (permStatus.display !== 'granted') {
+          this.notificationsEnabled = false;
+          this.showAlert('Permiso Denegado', 'Por favor, habilita las notificaciones en los ajustes de tu teléfono para que Acadex pueda avisarte.');
+        }
+      } catch (e) {
+        console.log('El plugin de notificaciones requiere un dispositivo físico o emulador configurado.');
+      }
+    }
+  }
+
   async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
@@ -131,9 +163,6 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // [SEGURIDAD Y CUENTA]
-  // Lógica de reseteo de contraseña y eliminación de cuenta, cumpliendo con los estándares
-  // de seguridad de Firebase al exigir sesiones recientes para acciones críticas.
   async changePassword() {
     if (!this.email) return;
     try {
@@ -170,9 +199,6 @@ export class ProfilePage implements OnInit {
     await alert.present();
   }
 
-  // [PERSISTENCIA DE DATOS ACADÉMICOS]
-  // Sincronizo los campos del formulario con la base de datos Firestore utilizando {merge: true}
-  // para actualizar solo los campos necesarios.
   async saveProfile() {
     const user = this.auth.currentUser;
     if (!user) return;
@@ -183,6 +209,9 @@ export class ProfilePage implements OnInit {
         universidad: this.universidad,
         carrera: this.carrera,
         matricula: this.matricula,
+        notificationsEnabled: this.notificationsEnabled,
+        notificationDays: this.notificationDays,
+        notificationTime: this.notificationTime,
         ultimaActualizacion: new Date()
       }, { merge: true });
 

@@ -1,30 +1,171 @@
+/* =======================================
+   FONDO Y CONTENEDOR PRINCIPAL
+   ======================================= */
 .auth-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100%;
-  max-width: 450px;
+  min-height: 100%;
+  max-width: 420px;
   margin: 0 auto;
+  padding: 20px;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-  .logo-section {
-    text-align: center;
-    margin-bottom: 2rem;
-    h1 {
-      font-size: 3.5rem;
-      font-weight: 800;
-      color: var(--ion-color-primary);
-      margin: 0;
-    }
-    p {
-      color: var(--ion-color-medium);
-      font-size: 1.1rem;
-    }
-  }
+/* =======================================
+   CABECERA Y LOGO
+   ======================================= */
+.brand-header {
+  text-align: center;
+  margin-bottom: 30px;
 
-  .toggle-mode a {
-    cursor: pointer;
+  .brand-logo {
+    font-size: 3.5rem;
     color: var(--ion-color-primary);
-    font-weight: 500;
-    text-decoration: underline;
+    margin-bottom: 5px;
+    filter: drop-shadow(0px 4px 8px rgba(var(--ion-color-primary-rgb), 0.4));
   }
+
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -1.5px;
+    /* Al quitar el color, Ionic elige blanco o negro automáticamente sin fallar */
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 1.05rem;
+    margin-top: 5px;
+    font-weight: 500;
+  }
+}
+
+/* =======================================
+   TARJETA Y FORMULARIOS
+   ======================================= */
+.form-card {
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  padding: 10px 5px;
+  
+  ion-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+}
+
+/* INPUTS MODERNOS NATIVOS */
+.custom-input {
+  --border-radius: 14px;
+  --border-width: 1.5px;
+  --highlight-height: 0; 
+  --padding-start: 15px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+
+  ion-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: var(--ion-color-medium);
+  }
+
+  &.item-has-focus {
+    --border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 4px rgba(var(--ion-color-primary-rgb), 0.15);
+  }
+}
+
+.eye-btn {
+  margin: 0;
+  height: 100%;
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
+
+/* =======================================
+   BOTONES Y TEXTOS
+   ======================================= */
+.submit-btn {
+  margin-top: 25px;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 20px rgba(var(--ion-color-primary-rgb), 0.35);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  height: 52px;
+  font-size: 1.05rem;
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 20px;
+  
+  a {
+    color: var(--ion-color-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+}
+
+.toggle-mode {
+  text-align: center;
+  margin-top: 30px;
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+  }
+  
+  a {
+    color: var(--ion-color-primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 5px;
+  }
+}
+
+.error-msg {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: -10px 0 15px 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon {
+    font-size: 1rem;
+  }
+}
+
+/* ANIMACIONES */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-section {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

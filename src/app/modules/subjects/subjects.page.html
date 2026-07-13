@@ -1,161 +1,204 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/dashboard" color="primary"></ion-back-button>
     </ion-buttons>
-    <ion-title>Mis Materias</ion-title>
+    <ion-title style="font-weight: 800; font-size: 1.3rem;">Mis Materias</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" color="light">
+<ion-content class="subjects-content ion-padding" color="light">
 
-  <ion-card class="form-card">
-    <ion-card-header>
+  <ion-card class="form-card fade-in">
+    <ion-card-header class="ion-text-center">
       <ion-card-title>Registrar Asignatura</ion-card-title>
     </ion-card-header>
+    
     <ion-card-content>
       <form [formGroup]="subjectForm" (ngSubmit)="addSubject()">
         
-        <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-item fill="outline" class="custom-input">
           <ion-input label="Código (Ej. ISW411) *" labelPlacement="floating" type="text" formControlName="code" autocapitalize="characters"></ion-input>
         </ion-item>
 
-        <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-item fill="outline" class="custom-input">
           <ion-input label="Nombre de la materia *" labelPlacement="floating" type="text" formControlName="name"></ion-input>
         </ion-item>
         
-        <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-item fill="outline" class="custom-input">
           <ion-input label="Profesor / Facilitador *" labelPlacement="floating" type="text" formControlName="professor"></ion-input>
         </ion-item>
 
-        <ion-button expand="block" type="submit" [disabled]="subjectForm.invalid">
+        <ion-item fill="outline" class="custom-input">
+          <ion-select label="Día de la clase (Opcional)" labelPlacement="floating" formControlName="dayOfWeek" interface="popover">
+            <ion-select-option [value]="2">Lunes</ion-select-option>
+            <ion-select-option [value]="3">Martes</ion-select-option>
+            <ion-select-option [value]="4">Miércoles</ion-select-option>
+            <ion-select-option [value]="5">Jueves</ion-select-option>
+            <ion-select-option [value]="6">Viernes</ion-select-option>
+            <ion-select-option [value]="7">Sábado</ion-select-option>
+            <ion-select-option [value]="1">Domingo</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-row *ngIf="subjectForm.get('dayOfWeek')?.value">
+          <ion-col size="6" class="ion-no-padding" style="padding-right: 5px;">
+            <ion-item fill="outline" class="custom-input">
+              <ion-input label="Hora Inicio *" labelPlacement="floating" type="time" formControlName="startTime" required></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col size="6" class="ion-no-padding" style="padding-left: 5px;">
+            <ion-item fill="outline" class="custom-input">
+              <ion-input label="Hora Fin (Opc)" labelPlacement="floating" type="time" formControlName="endTime"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-button expand="block" type="submit" [disabled]="subjectForm.invalid" class="submit-btn">
           Guardar Materia
         </ion-button>
       </form>
     </ion-card-content>
   </ion-card>
 
-  <h3 class="section-title ion-padding-start">Materias Registradas</h3>
+  <div class="fade-in delay-1">
+    <h3 class="section-title ion-padding-start">Materias Registradas</h3>
 
-  <ion-list class="transparent-list" *ngIf="subjectsWithGrades$ | async as subjects">
-    <ion-item-sliding *ngFor="let subject of subjects">
-      <ion-item class="subject-item" button="true" (click)="openGradeModal(subject)" detail="false">
+    <ion-list class="transparent-list" *ngIf="subjectsWithGrades$ | async as subjects">
+      
+      <ion-item class="subject-card" lines="none" *ngFor="let subject of subjects" button="true" (click)="openGradeModal(subject)" detail="false">
         <ion-label>
-          <h2>
+          <h2 style="font-weight: 700; font-size: 1.1rem; color: var(--ion-text-color);">
             {{ subject.name }}
-            <ion-badge color="tertiary" style="margin-left: 8px;">{{ subject.code }}</ion-badge>
+            <ion-badge color="tertiary" style="margin-left: 8px; border-radius: 6px; padding: 4px 8px;">{{ subject.code }}</ion-badge>
           </h2>
-          <p><ion-icon name="person-outline"></ion-icon> {{ subject.professor }}</p>
-          <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ion-color-medium);">
+          <p style="color: var(--ion-color-medium); font-weight: 500; margin-top: 4px;">
+            <ion-icon name="person-outline"></ion-icon> {{ subject.professor }}
+          </p>
+          
+          <p *ngIf="subject.dayOfWeek && subject.startTime" style="font-size: 0.85rem; margin-top: 4px; color: #8b5cf6; font-weight: 600;">
+            <ion-icon name="time-outline"></ion-icon> {{ getDayName(subject.dayOfWeek) }} • {{ subject.startTime }} <span *ngIf="subject.endTime">a {{ subject.endTime }}</span>
+          </p>
+
+          <p style="font-size: 0.8rem; margin-top: 6px; color: var(--ion-color-step-500);">
             <ion-icon name="list-outline"></ion-icon> {{ subject.tasksCount }} Asignaciones evaluadas
           </p>
         </ion-label>
         
-        <ion-badge slot="end" [color]="subject.totalScore >= 70 ? 'success' : (subject.totalScore > 0 ? 'warning' : 'light')" style="font-size: 1rem; padding: 6px 12px; border-radius: 8px;">
+        <ion-badge slot="end" [color]="subject.totalScore >= 70 ? 'success' : (subject.totalScore > 0 ? 'warning' : 'light')" style="font-size: 1rem; padding: 6px 12px; border-radius: 12px;">
           {{ subject.totalScore > 0 ? (subject.letterGrade + ' (' + subject.totalScore + ')') : 'Sin evaluar' }}
         </ion-badge>
       </ion-item>
+      
+      <div class="empty-state" *ngIf="subjects.length === 0">
+        <ion-icon name="library-outline" size="large" color="medium" style="opacity: 0.5; margin-bottom: 10px;"></ion-icon>
+        <p>Aún no has registrado ninguna materia.</p>
+      </div>
+    </ion-list>
+  </div>
 
-      <ion-item-options side="end">
-        <ion-item-option color="danger" (click)="confirmDelete(subject.id)">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-    
-    <div class="empty-state" *ngIf="subjects.length === 0">
-      <p>Aún no has registrado ninguna materia.</p>
-    </div>
-  </ion-list>
-
-  <ion-modal [isOpen]="isGradeModalOpen" (didDismiss)="closeGradeModal()" [initialBreakpoint]="0.70" [breakpoints]="[0, 0.70, 0.95]">
+  <ion-modal [isOpen]="isGradeModalOpen" (didDismiss)="closeGradeModal()" [initialBreakpoint]="0.75" [breakpoints]="[0, 0.75, 0.95]" mode="ios">
     <ng-template>
       <ion-header class="ion-no-border">
-        <ion-toolbar>
-          <ion-title>Reporte de Calificaciones</ion-title>
+        <ion-toolbar> 
+          <ion-title style="font-weight: bold;">Reporte Académico</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closeGradeModal()" color="medium">
               <ion-icon name="close-circle" slot="icon-only" size="large"></ion-icon>
             </ion-button>
           </ion-buttons>
-        </ion-toolbar>
+        </ion-toolbar> 
       </ion-header>
 
-      <ion-content class="ion-padding" *ngIf="selectedSubject">
-        <div style="margin-bottom: 20px; text-align: center;">
-          <h2 style="font-weight: 700; font-size: 1.3rem; margin: 0; color: var(--ion-text-color);">{{ selectedSubject.name }}</h2>
-          <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--ion-color-medium);">Cálculo automático basado en tus entregas</p>
-        </div>
+      <ion-content class="subjects-content ion-padding">
+        
+        <ng-container *ngIf="selectedSubject">
+          <div style="margin-bottom: 25px; text-align: center;" class="fade-in">
+            <h2 style="font-weight: 800; font-size: 1.5rem; margin: 0; color: var(--ion-text-color);">{{ selectedSubject.name }}</h2>
+            <p style="margin: 6px 0 0 0; font-size: 0.95rem; color: var(--ion-color-medium);">Cálculo automático basado en tus entregas</p>
+          </div>
 
-        <ion-list lines="full">
-          <ion-item>
-            <ion-icon name="chatbubbles-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h3>Participación (Foros)</h3>
-              <p>Valor total: 10%</p>
-            </ion-label>
-            <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: bold;">
-              {{ selectedSubject.breakdown?.ptosForos | number:'1.0-1' }} pts
-            </ion-note>
-          </ion-item>
+          <ion-list lines="none" class="transparent-list fade-in delay-1">
+            <ion-item class="grade-item">
+              <ion-icon name="chatbubbles" slot="start" color="tertiary" style="opacity: 0.8;"></ion-icon>
+              <ion-label>
+                <h3>Participación (Foros)</h3>
+                <p>Valor total de la métrica: 10%</p>
+              </ion-label>
+              <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: 900; color: var(--ion-text-color);">
+                {{ selectedSubject.breakdown?.ptosForos | number:'1.0-1' }} pts
+              </ion-note>
+            </ion-item>
 
-          <ion-item>
-            <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h3>Actividades Prácticas (Tareas)</h3>
-              <p>Valor total: 20%</p>
-            </ion-label>
-            <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: bold;">
-              {{ selectedSubject.breakdown?.ptosTareas | number:'1.0-1' }} pts
-            </ion-note>
-          </ion-item>
+            <ion-item class="grade-item">
+              <ion-icon name="document-text" slot="start" color="primary" style="opacity: 0.8;"></ion-icon>
+              <ion-label>
+                <h3>Actividades Prácticas</h3>
+                <p>Valor total de la métrica: 20%</p>
+              </ion-label>
+              <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: 900; color: var(--ion-text-color);">
+                {{ selectedSubject.breakdown?.ptosTareas | number:'1.0-1' }} pts
+              </ion-note>
+            </ion-item>
 
-          <ion-item>
-            <ion-icon name="construct-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h3>Proyecto Final</h3>
-              <p>Valor total: 15%</p>
-            </ion-label>
-            <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: bold;">
-              {{ selectedSubject.breakdown?.ptosProyectos | number:'1.0-1' }} pts
-            </ion-note>
-          </ion-item>
+            <ion-item class="grade-item">
+              <ion-icon name="construct" slot="start" color="secondary" style="opacity: 0.8;"></ion-icon>
+              <ion-label>
+                <h3>Proyecto Final</h3>
+                <p>Valor total de la métrica: 15%</p>
+              </ion-label>
+              <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: 900; color: var(--ion-text-color);">
+                {{ selectedSubject.breakdown?.ptosProyectos | number:'1.0-1' }} pts
+              </ion-note>
+            </ion-item>
 
-          <ion-item>
-            <ion-icon name="school-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h3>Prueba Final</h3>
-              <p>Valor total: 50%</p>
-            </ion-label>
-            <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: bold;">
-              {{ selectedSubject.breakdown?.ptosExamenes | number:'1.0-1' }} pts
-            </ion-note>
-          </ion-item>
+            <ion-item class="grade-item">
+              <ion-icon name="school" slot="start" style="color: #8b5cf6; opacity: 0.8;"></ion-icon>
+              <ion-label>
+                <h3>Prueba Final (Examen)</h3>
+                <p>Valor total de la métrica: 50%</p>
+              </ion-label>
+              <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: 900; color: var(--ion-text-color);">
+                {{ selectedSubject.breakdown?.ptosExamenes | number:'1.0-1' }} pts
+              </ion-note>
+            </ion-item>
 
-          <ion-item>
-            <ion-icon name="heart-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h3>Valores y Actitudes</h3>
-              <p>Valor total: 5%</p>
-            </ion-label>
-            <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: bold;">
-              {{ selectedSubject.breakdown?.ptosValores | number:'1.0-1' }} pts
-            </ion-note>
-          </ion-item>
-        </ion-list>
+            <ion-item class="grade-item">
+              <ion-icon name="heart" slot="start" color="danger" style="opacity: 0.8;"></ion-icon>
+              <ion-label>
+                <h3>Valores y Actitudes</h3>
+                <p>Valor total de la métrica: 5%</p>
+              </ion-label>
+              <ion-note slot="end" color="dark" style="font-size: 1.1rem; font-weight: 900; color: var(--ion-text-color);">
+                {{ selectedSubject.breakdown?.ptosValores | number:'1.0-1' }} pts
+              </ion-note>
+            </ion-item>
+          </ion-list>
 
-        <div style="background: rgba(56, 128, 255, 0.05); border: 1px dashed var(--ion-color-primary); padding: 15px; border-radius: 12px; margin-top: 20px; text-align: center;">
-          <span style="font-size: 0.85rem; color: var(--ion-color-step-600); display: block; text-transform: uppercase; font-weight: bold;">Calificación Acumulada Oficial</span>
-          <strong style="font-size: 2.2rem; color: var(--ion-color-primary); display: block; margin: 5px 0;">
-            {{ selectedSubject.totalScore }} / 100
-          </strong>
-          <ion-badge [color]="selectedSubject.totalScore >= 70 ? 'success' : 'warning'" style="font-size: 1.2rem; padding: 4px 12px;">
-            Letra: {{ selectedSubject.letterGrade }}
-          </ion-badge>
-        </div>
+          <div class="grade-box fade-in delay-2">
+            <span style="font-size: 0.85rem; color: var(--ion-color-step-600); display: block; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Calificación Acumulada Oficial</span>
+            <strong style="font-size: 2.8rem; color: var(--ion-color-primary); display: block; margin: 10px 0; line-height: 1;">
+              {{ selectedSubject.totalScore }}<span style="font-size: 1.5rem; color: var(--ion-color-step-400);">/100</span>
+            </strong>
+            <ion-badge [color]="selectedSubject.totalScore >= 70 ? 'success' : 'warning'" style="font-size: 1.1rem; padding: 6px 16px; border-radius: 12px; font-weight: 800;">
+              Letra: {{ selectedSubject.letterGrade }}
+            </ion-badge>
+          </div>
 
-        <ion-button expand="block" fill="clear" color="medium" (click)="closeGradeModal()" style="margin-top: 15px;">Cerrar Reporte</ion-button>
+          <ion-row style="margin-top: 25px;" class="fade-in delay-2">
+            <ion-col size="6">
+              <ion-button expand="block" color="danger" fill="outline" (click)="confirmDelete(selectedSubject)" style="--border-radius: 14px; font-weight: bold;">
+                <ion-icon name="trash" slot="start"></ion-icon> Eliminar
+              </ion-button>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button expand="block" color="medium" fill="outline" (click)="closeGradeModal()" style="--border-radius: 14px; font-weight: bold;">
+                Cerrar
+              </ion-button>
+            </ion-col>
+          </ion-row>
 
+        </ng-container>
       </ion-content>
     </ng-template>
   </ion-modal>
