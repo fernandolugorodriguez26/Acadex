@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../core/services/data';
 import { Observable } from 'rxjs';
 
+// Configuración del Componente
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.page.html',
@@ -9,16 +10,17 @@ import { Observable } from 'rxjs';
   standalone: false
 })
 export class CalendarPage implements OnInit {
+  
+  // Variables de Estado
   tasks$: Observable<any[]> | null = null;
   allTasks: any[] = [];
   selectedDateTasks: any[] = [];
   highlightedDates: any[] = []; 
 
+  // Inyección de Servicios
   constructor(private dataService: DataService) {}
 
-  // [SUBSCRIPCIÓN Y MAPEO]
-  // Obtengo el flujo de tareas desde la base de datos y genero dinámicamente 
-  // los marcadores visuales (puntos azules) requeridos por el componente de calendario.
+  // Suscripción de Datos y Generación de Marcadores
   ngOnInit() {
     this.tasks$ = this.dataService.getTasks();
     
@@ -33,9 +35,7 @@ export class CalendarPage implements OnInit {
     });
   }
 
-  // [FILTRO DE UI]
-  // Capturo el evento de selección del calendario, extraigo solo la fecha en formato ISO (YYYY-MM-DD)
-  // y filtro localmente el arreglo para mostrar únicamente las entregas de ese día.
+  // Filtrado Local por Fecha Seleccionada
   onDateChange(event: any) {
     const selectedDate = event.detail.value.split('T')[0];
     this.selectedDateTasks = this.allTasks.filter(task => task.dueDate === selectedDate);

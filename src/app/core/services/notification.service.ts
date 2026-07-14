@@ -70,10 +70,9 @@ export class NotificationService {
   }
 
   // ==========================================
-  // NOTIFICACIONES PARA CLASES (Recurrentes Semanales)
+  // NOTIFICACIONES PARA CLASES
   // ==========================================
   async scheduleClassNotification(subject: any) {
-    // Verificamos que la materia tenga configurado un día y una hora de inicio
     if (!this.userId || !subject.dayOfWeek || !subject.startTime) return;
 
     try {
@@ -84,10 +83,8 @@ export class NotificationService {
         if (!enabled) return;
       }
 
-      // Convertimos la hora de inicio de la clase (ej. "14:00") a números
       const [classHours, classMinutes] = subject.startTime.split(':').map(Number);
       
-      // Creamos un objeto Date temporal para restar la hora y media (90 minutos)
       let alarmTime = new Date();
       alarmTime.setHours(classHours, classMinutes, 0, 0);
       alarmTime.setMinutes(alarmTime.getMinutes() - 90);

@@ -1,11 +1,13 @@
+import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from '../../core/services/data';
-// [NUEVO] Importamos el servicio de notificaciones
 import { NotificationService } from '../../core/services/notification.service'; 
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
+// Configuración del componente
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.page.html',
@@ -13,40 +15,44 @@ import { Observable } from 'rxjs';
   standalone: false
 })
 export class TasksPage implements OnInit {
-  taskForm: FormGroup;      // Formulario para Nueva Tarea
-  editTaskForm: FormGroup;  // Formulario exclusivo para el Modal de Edición
   
+  // Formularios
+  taskForm: FormGroup;
+  editTaskForm: FormGroup; 
+  
+  // Variables de datos y observables
   tasks$: Observable<any[]> | null = null;
   subjects$: Observable<any[]> | null = null; 
-  
   allTasks: any[] = [];
   filteredTasks: any[] = [];
   currentFilter: string = 'all';
 
+  // Manejo de archivos adjuntos
   selectedFile: File | null = null;
-  selectedEditFile: File | null = null; // Archivo adjunto para la edición
+  selectedEditFile: File | null = null; 
   
-  // Variables del Modal
+  // Variables de Modal
   selectedTask: any = null;
   isModalOpen: boolean = false;
-  isEditingMode: boolean = false; // Controla si el modal muestra detalles o el formulario
+  isEditingMode: boolean = false; 
   
-  // Gamificación y Racha
+  // Variables de Gamificación y Estadísticas
   totalTasks: number = 0;
   completedTasks: number = 0;
   progressPercentage: number = 0;
   studyStreak: number = 0;
 
+  // Inyección de dependencias e inicialización de formularios
   constructor(
     private fb: FormBuilder,
     private dataService: DataService,
-    // [NUEVO] Inyectamos el servicio en el constructor
     private notificationService: NotificationService,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private auth: Auth,          
+    private router: Router        
   ) {
-    // Formulario de creación
     this.taskForm = this.fb.group({
       title: ['', Validators.required],
       subjectName: ['', Validators.required],
@@ -57,7 +63,6 @@ export class TasksPage implements OnInit {
       isCompleted: [false]
     });
 
-    // Formulario de edición
     this.editTaskForm = this.fb.group({
       title: ['', Validators.required],
       subjectName: ['', Validators.required],
@@ -69,27 +74,31 @@ export class TasksPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.subjects$ = this.dataService.getSubjects();
-    this.tasks$ = this.dataService.getTasks();
+  // Carga inicial de datos
+ngOnInit() {
+    onAuthStateChanged(this.auth, (user) => {
+      if (user) {
+        this.subjects$ = this.dataService.getSubjects();
+        this.tasks$ = this.dataService.getTasks();
 
-    this.tasks$.subscribe(tasks => {
-      this.allTasks = tasks;
-      this.totalTasks = tasks.length;
-      this.completedTasks = tasks.filter(t => t.isCompleted).length;
-      this.progressPercentage = this.totalTasks > 0 ? (this.completedTasks / this.totalTasks) : 0;
+        this.tasks$.subscribe(tasks => {
+          this.allTasks = tasks;
+          this.totalTasks = tasks.length;
+          this.completedTasks = tasks.filter(t => t.isCompleted).length;
+          this.progressPercentage = this.totalTasks > 0 ? (this.completedTasks / this.totalTasks) : 0;
 
-      this.calculateStreak(tasks);
-      this.applyFilter(this.currentFilter); 
+          this.calculateStreak(tasks);
+          this.applyFilter(this.currentFilter); 
+        });
+      } else {
+        this.router.navigateByUrl('/auth', { replaceUrl: true });
+      }
     });
   }
-
-  // ==========================================
-  // LÓGICA DEL MODAL: VER Y EDITAR
-  // ==========================================
+  // Gestión de Modal de Tareas (Ver/Editar)
   openTaskDetails(task: any) {
     this.selectedTask = task;
-    this.isEditingMode = false; // Siempre abre en modo "Ver detalles"
+    this.isEditingMode = false;
     this.selectedEditFile = null;
     this.isModalOpen = true;
   }
@@ -120,6 +129,7 @@ export class TasksPage implements OnInit {
     this.selectedEditFile = null;
   }
 
+  // Guardado de Edición y Actualización de Notificaciones
   async saveEditedTask() {
     if (this.editTaskForm.invalid) return;
 
@@ -142,8 +152,6 @@ export class TasksPage implements OnInit {
       };
       
       await this.dataService.updateTask(this.selectedTask.id, finalTaskData);
-      
-      // [NUEVO] Reprogramar notificación en caso de que la fecha haya cambiado
       await this.notificationService.scheduleTaskNotification({ id: this.selectedTask.id, ...finalTaskData });
       
       this.showToast('Asignación actualizada con éxito', 'success');
@@ -161,9 +169,7 @@ export class TasksPage implements OnInit {
     this.closeTaskDetails();
   }
 
-  // ==========================================
-  // CREACIÓN RÁPIDA DE MATERIAS
-  // ==========================================
+  // Flujo de Creación Rápida de Materias
   async onSubjectChange(event: any, formType: 'new' | 'edit') {
     if (event.detail.value === 'NEW_SUBJECT') {
       const alert = await this.alertCtrl.create({
@@ -208,9 +214,7 @@ export class TasksPage implements OnInit {
     }
   }
 
-  // ==========================================
-  // LÓGICA DE CREACIÓN NUEVA TAREA
-  // ==========================================
+  // Creación de Nuevas Tareas
   async addTask() {
     if (this.taskForm.invalid) return;
 
@@ -229,10 +233,7 @@ export class TasksPage implements OnInit {
         fileName: this.selectedFile ? this.selectedFile.name : null
       };
 
-      // Recibimos el resultado para obtener el ID de la nueva tarea
       const result = await this.dataService.addTask(finalTaskData);
-      
-      // [NUEVO] Programar la notificación local
       await this.notificationService.scheduleTaskNotification({ id: result.id, ...finalTaskData });
       
       this.taskForm.reset({ isCompleted: false, category: 'Tarea', priority: 'Media', subjectName: '', notes: '' });
@@ -246,6 +247,7 @@ export class TasksPage implements OnInit {
     }
   }
 
+  // Control de Archivos Seleccionados
   onFileSelected(event: any, type: 'new' | 'edit') {
     if (type === 'new') {
       this.selectedFile = event.target.files[0];
@@ -254,9 +256,7 @@ export class TasksPage implements OnInit {
     }
   }
 
-  // ==========================================
-  // FILTROS Y ESTADOS
-  // ==========================================
+  // Aplicación de Filtros de Visualización
   applyFilter(filter: string) {
     this.currentFilter = filter;
     const todayStr = new Date().toISOString().split('T')[0];
@@ -273,6 +273,7 @@ export class TasksPage implements OnInit {
     }
   }
 
+  // Cálculo de Racha de Estudio
   calculateStreak(tasks: any[]) {
     const completedDates = tasks.filter(t => t.isCompleted && t.completedDate).map(t => t.completedDate);
     const uniqueDates = [...new Set(completedDates)].sort((a, b) => b.localeCompare(a));
@@ -301,6 +302,7 @@ export class TasksPage implements OnInit {
     this.studyStreak = streak;
   }
 
+  // Cambio de Estado (Completado/Pendiente)
   async toggleComplete(task: any, event?: Event) {
     if (event) event.stopPropagation(); 
     try {
@@ -308,7 +310,6 @@ export class TasksPage implements OnInit {
       const completedDate = isNowCompleted ? new Date().toISOString().split('T')[0] : null;
       await this.dataService.updateTask(task.id, { isCompleted: isNowCompleted, completedDate: completedDate });
       
-      // [NUEVO] Si se completa, cancelamos la alarma. Si se desmarca, la reprogramamos
       if (isNowCompleted) {
         await this.notificationService.cancelTaskNotification({ id: task.id });
       } else {
@@ -320,6 +321,7 @@ export class TasksPage implements OnInit {
     }
   }
 
+  // Ingreso de Calificaciones Manuales
   async rateTask(task: any, event?: Event) {
     if (event) event.stopPropagation();
     
@@ -348,19 +350,18 @@ export class TasksPage implements OnInit {
     await alert.present();
   }
 
+  // Eliminación de Tarea y Notificación Asociada
   async deleteTask(taskId: string) {
     try {
       await this.dataService.deleteTask(taskId);
-      
-      // [NUEVO] Eliminar la alarma programada al borrar la tarea
       await this.notificationService.cancelTaskNotification({ id: taskId });
-      
       this.showToast('Tarea eliminada', 'warning');
     } catch (error) { 
       this.showToast('Error al eliminar', 'danger'); 
     }
   }
 
+  // Asignación de Color UI según Prioridad
   getPriorityColor(priority: string): string {
     switch(priority) {
       case 'Crítica': return 'danger';
@@ -371,6 +372,7 @@ export class TasksPage implements OnInit {
     }
   }
 
+  // Visualización de Alertas Toast
   async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({ message, duration: 2000, color, position: 'bottom' });
     await toast.present();

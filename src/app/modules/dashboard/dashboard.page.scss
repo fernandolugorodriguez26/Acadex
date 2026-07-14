@@ -1,6 +1,6 @@
-/* =======================================
-   FONDO GLOBAL Y ANIMACIONES
-   ======================================= */
+// ==========================================
+// VARIABLES GLOBALES Y ANIMACIONES (DASHBOARD)
+// ==========================================
 .dashboard-content {
   --background: var(--ion-background-color);
 }
@@ -27,21 +27,19 @@
   animation: chromeSlideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s forwards;
 }
 
-/* =======================================
-   ESTILOS DEL BOTÓN DE PERFIL
-   ======================================= */
+// ==========================================
+// BOTÓN DE PERFIL (HEADER)
+// ==========================================
 .profile-trigger {
   display: flex;
   align-items: center;
-  gap: 8px; /* Espacio entre foto y texto */
-  padding: 4px 14px 4px 4px; /* Menos padding a la izquierda para abrazar la foto */
-  /* El fondo gris translúcido exacto que pediste */
+  gap: 8px;
+  padding: 4px 14px 4px 4px;
   background: rgba(130, 130, 130, 0.15); 
   border-radius: 50px; 
   margin-right: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
-  /* Borde ultra sutil para que no se pierda en fondos grises */
   border: 1px solid rgba(130, 130, 130, 0.1); 
 
   &:active {
@@ -53,7 +51,6 @@
     ion-avatar {
       width: 32px;
       height: 32px;
-      /* Eliminamos los bordes y sombras para que quede limpio como en la imagen */
       border: none;
       box-shadow: none; 
     }
@@ -62,12 +59,11 @@
   .user-info {
     display: flex;
     align-items: center;
-    gap: 4px; /* Separación entre "Hola," y el nombre */
+    gap: 4px;
     
     .greeting {
       font-size: 0.9rem;
       color: var(--ion-color-medium);
-      /* Quitamos los contornos viejos */
       -webkit-text-stroke: 0;
       text-shadow: none;
     }
@@ -76,16 +72,15 @@
       font-size: 0.9rem;
       font-weight: 700;
       color: var(--ion-text-color);
-      /* Quitamos los contornos viejos */
       -webkit-text-stroke: 0;
       text-shadow: none;
     }
   }
 }
 
-/* =======================================
-   TARJETAS PRINCIPALES (CALENDARIO)
-   ======================================= */
+// ==========================================
+// TARJETAS DEL CALENDARIO
+// ==========================================
 .calendar-card {
   border-radius: 24px;
   background: var(--ion-card-background); 
@@ -95,9 +90,9 @@
   overflow: hidden;
 }
 
-/* =======================================
-   SECCIONES Y BOTONES
-   ======================================= */
+// ==========================================
+// ENCABEZADOS DE SECCIÓN Y BOTONES DE ACCIÓN
+// ==========================================
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -112,7 +107,6 @@
   }
 }
 
-/* BOTÓN DE MATERIAS PREMIUM Y DESTACADO */
 .materias-btn {
   --background: var(--ion-color-secondary);
   --color: #ffffff;
@@ -136,16 +130,16 @@
   padding: 0;
 }
 
-/* TARJETAS DE TAREAS Y CLASES FLOTANTES */
+// ==========================================
+// TARJETAS DE LISTADO (TAREAS Y CLASES)
+// ==========================================
 .task-card {
   --background: var(--ion-card-background);
   --border-radius: 16px;
-  --padding-start: 15px; /* Un poco más de espacio al inicio */
-  --inner-border-width: 0; /* ¡Magia! Quita la raya nativa fea de Ionic */
-  
-  border-radius: 16px; /* Fuerza el redondeo en el contenedor exterior */
-  margin: 0 16px 12px 16px; /* Las despega de las orillas de la pantalla */
-  
+  --padding-start: 15px;
+  --inner-border-width: 0;
+  border-radius: 16px;
+  margin: 0 16px 12px 16px;
   border: 1px solid var(--ion-color-step-100);
   box-shadow: 0 6px 12px rgba(0,0,0,0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -160,14 +154,15 @@
   --border-radius: 16px;
   --padding-start: 15px;
   --inner-border-width: 0;
-  
   border-radius: 16px;
   margin: 0 16px 15px 16px;
   border: 1px solid var(--ion-color-step-100);
   box-shadow: 0 4px 10px rgba(0,0,0,0.03);
 }
 
-/* TEXTOS Y BADGES */
+// ==========================================
+// TIPOGRAFÍA Y ESTADOS
+// ==========================================
 .subject-badge {
   color: var(--ion-color-medium);
   font-weight: 600;
@@ -192,9 +187,9 @@
   p { margin-top: 10px; font-weight: 500; }
 }
 
-/* =======================================
-   MODAL DE EDICIÓN Y BOTÓN FLOTANTE
-   ======================================= */
+// ==========================================
+// FORMULARIOS Y COMPONENTES FLOTANTES
+// ==========================================
 ion-fab-button {
   --box-shadow: 0 8px 20px rgba(var(--ion-color-tertiary-rgb), 0.4);
   transition: transform 0.2s ease;

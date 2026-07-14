@@ -19,13 +19,13 @@
 .delay-3 { animation-delay: 0.3s; }
 
 /* =======================================
-   CABECERA Y AVATAR (ESTRICTO FLEXBOX)
+   CABECERA Y AVATAR
    ======================================= */
 .profile-header {
   padding: 20px 10px 10px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Obliga a que todo, sí o sí, esté en el centro */
+  align-items: center; 
   
   .avatar-container {
     position: relative;
@@ -33,11 +33,11 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
-    width: 120px; /* Tamaño fijo para el marco */
+    width: 120px; 
     height: 120px;
     
     .main-avatar {
-      position: relative !important; /* Evita que herede estilos erróneos */
+      position: relative !important; 
       width: 110px !important;
       height: 110px !important;
       margin: 0 !important;

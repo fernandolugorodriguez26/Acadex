@@ -31,7 +31,6 @@
     font-weight: 800;
     margin: 0;
     letter-spacing: -1.5px;
-    /* Al quitar el color, Ionic elige blanco o negro automáticamente sin fallar */
   }
 
   p {
@@ -63,7 +62,7 @@
   }
 }
 
-/* INPUTS MODERNOS NATIVOS */
+/* INPUTS */
 .custom-input {
   --border-radius: 14px;
   --border-width: 1.5px;

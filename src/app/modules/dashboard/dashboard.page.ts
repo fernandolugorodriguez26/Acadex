@@ -1,3 +1,4 @@
+// Importaciones de dependencias
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
@@ -15,34 +16,33 @@ import { LoadingController, ToastController, AlertController } from '@ionic/angu
   standalone: false
 })
 export class DashboardPage implements OnInit {
+  
+  // Variables de datos y estado
   tasks$: Observable<any[]> | null = null;
   subjects$: Observable<any[]> | null = null;
   allTasks: any[] = [];
   selectedDateTasks: any[] = [];
-  
   allSubjects: any[] = [];
   selectedDateClasses: any[] = [];
-  
   currentSelectedDate: string = '';
   userName: string = 'Estudiante'; 
   userPhoto: string = ''; 
   subjectsMap: { [key: string]: string } = {};
 
-  // ==========================================
-  // VARIABLES DEL CALENDARIO PERSONALIZADO
-  // ==========================================
+  // Variables del calendario
   currentMonth: Date = new Date();
   calendarGrid: any[] = [];
   weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-  // Formulario y Modal
+  // Variables de formulario y modal
   editTaskForm: FormGroup;
   selectedTask: any = null;
   isModalOpen: boolean = false;
   isEditingMode: boolean = false;
   selectedEditFile: File | null = null;
 
+  // Inyección de dependencias e inicialización de formulario
   constructor(
     private authService: AuthService,
     public dataService: DataService,
@@ -67,11 +67,12 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  // Obtiene el mes en texto para el encabezado (Ej: "Julio 2026")
+  // Getter del encabezado del mes actual
   get currentMonthName() {
     return `${this.monthNames[this.currentMonth.getMonth()]} ${this.currentMonth.getFullYear()}`;
   }
 
+  // Inicialización y carga de datos del usuario
   ngOnInit() {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
@@ -83,7 +84,7 @@ export class DashboardPage implements OnInit {
         
         this.tasks$.subscribe(tasks => {
           this.allTasks = tasks;
-          this.generateCalendar(); // Renderiza la cuadrícula
+          this.generateCalendar(); 
           this.filterTasksByDate(this.currentSelectedDate);
         });
 
@@ -93,7 +94,7 @@ export class DashboardPage implements OnInit {
           subjects.forEach(sub => {
             if (sub.code && sub.name) this.subjectsMap[sub.code.toUpperCase()] = sub.name;
           });
-          this.generateCalendar(); // Renderiza la cuadrícula
+          this.generateCalendar(); 
           this.filterTasksByDate(this.currentSelectedDate);
         });
 
@@ -103,29 +104,21 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  // ==========================================
-  // LÓGICA MATEMÁTICA DEL CALENDARIO
-  // ==========================================
-  // ==========================================
-  // LÓGICA MATEMÁTICA DEL CALENDARIO
-  // ==========================================
+  // Generación de la cuadrícula del calendario
   generateCalendar() {
     const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // [NUEVO] Calculamos la fecha exacta de hoy
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     this.calendarGrid = [];
     let currentWeek = [];
     
-    // Espacios vacíos al principio del mes
     for (let i = 0; i < firstDay; i++) currentWeek.push(null);
 
-    // Llenado de días y validación de Tareas/Clases
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       
@@ -135,10 +128,8 @@ export class DashboardPage implements OnInit {
       const hasClass = this.allSubjects.some(sub => sub.dayOfWeek === capacitorDay && sub.startTime);
       const hasTask = this.allTasks.some(t => t.dueDate === dateStr && !t.isCompleted);
       
-      // [NUEVO] Verificamos si este día del ciclo es hoy
       const isToday = dateStr === todayStr;
 
-      // [ACTUALIZADO] Añadimos isToday al objeto
       currentWeek.push({ day, dateStr, hasClass, hasTask, isToday });
 
       if (currentWeek.length === 7) {
@@ -147,14 +138,13 @@ export class DashboardPage implements OnInit {
       }
     }
     
-    // Espacios vacíos al final del mes
     if (currentWeek.length > 0) {
       while (currentWeek.length < 7) currentWeek.push(null);
       this.calendarGrid.push(currentWeek);
     }
   }
 
-
+  // Navegación de meses del calendario
   prevMonth() { 
     this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1); 
     this.generateCalendar(); 
@@ -165,14 +155,13 @@ export class DashboardPage implements OnInit {
     this.generateCalendar(); 
   }
 
+  // Selección de fecha en el calendario
   selectDate(dateStr: string) { 
     this.currentSelectedDate = dateStr; 
     this.filterTasksByDate(dateStr); 
   }
 
-  // ==========================================
-  // LÓGICA DE TAREAS Y MODAL
-  // ==========================================
+  // Filtrado de tareas y materias según la fecha seleccionada
   filterTasksByDate(date: string) { 
     this.selectedDateTasks = this.allTasks.filter(task => task.dueDate === date); 
     
@@ -184,11 +173,13 @@ export class DashboardPage implements OnInit {
     this.selectedDateClasses.sort((a, b) => a.startTime.localeCompare(b.startTime));
   }
 
+  // Gestión del modo de edición
   cancelEditMode() {
     this.isEditingMode = false;
     this.selectedEditFile = null;
   }
 
+  // Apertura y cierre del modal de tareas
   openTaskDetails(task: any) {
     if (this.isModalOpen) {
       return; 
@@ -223,6 +214,7 @@ export class DashboardPage implements OnInit {
     this.isEditingMode = true;
   }
   
+  // Guardado de tareas editadas y adjuntos
   async saveEditedTask() {
     if (this.editTaskForm.invalid) return;
     const loading = await this.loadingCtrl.create({ message: 'Actualizando...' });
@@ -248,8 +240,10 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  // Selección de archivo
   onFileSelected(event: any) { this.selectedEditFile = event.target.files[0]; }
 
+  // Eliminación de tarea desde el modal
   async deleteTaskFromModal() {
     await this.dataService.deleteTask(this.selectedTask.id);
     await this.notificationService.cancelTaskNotification({ id: this.selectedTask.id });
@@ -257,6 +251,7 @@ export class DashboardPage implements OnInit {
     this.closeTaskDetails();
   }
 
+  // Creación dinámica de materia desde el formulario
   async onSubjectChange(event: any, formType: 'edit') {
     if (event.detail.value === 'NEW_SUBJECT') {
       const alert = await this.alertCtrl.create({
@@ -276,6 +271,7 @@ export class DashboardPage implements OnInit {
     }
   }
   
+  // Cambio de estado de la tarea (Completado/Pendiente)
   async toggleComplete(task: any, event?: Event) { 
     if (event) event.stopPropagation(); 
     const isNowCompleted = !task.isCompleted;
@@ -288,11 +284,10 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  // Asignación de color según prioridad
   getPriorityColor(priority: string): string { switch(priority) { case 'Crítica': return 'danger'; case 'Alta': return 'warning'; case 'Media': return 'primary'; case 'Baja': return 'medium'; default: return 'primary'; } }
   
-  async logout() { await this.authService.logout(); this.router.navigateByUrl('/auth', { replaceUrl: true }); }
-  triggerIcsUpload() { document.getElementById('ics-upload-dashboard')?.click(); }
-  
+  // Calificación de tareas
   async rateTask(task: any, event?: Event) {
     if (event) event.stopPropagation();
     const alert = await this.alertCtrl.create({
@@ -317,6 +312,9 @@ export class DashboardPage implements OnInit {
     });
     await alert.present();
   }
+
+  // Procesamiento e importación de archivos ICS
+  triggerIcsUpload() { document.getElementById('ics-upload-dashboard')?.click(); }
 
   async onIcsSelected(event: any) {
     const file = event.target.files[0];
@@ -355,8 +353,15 @@ export class DashboardPage implements OnInit {
     return events;
   }
 
+  // Alertas visuales Toast
   async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({ message, duration: 2500, color, position: 'bottom' });
     await toast.present();
+  }
+
+  // Cierre de sesión
+  async logout() { 
+    await this.authService.logout(); 
+    this.router.navigateByUrl('/auth', { replaceUrl: true }); 
   }
 }

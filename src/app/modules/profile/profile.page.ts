@@ -4,9 +4,9 @@ import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { LocalNotifications } from '@capacitor/local-notifications';
-// [NUEVO] Importamos el DataService para leer tareas y materias
 import { DataService } from '../../core/services/data';
 
+// Configuración del Componente
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -14,26 +14,30 @@ import { DataService } from '../../core/services/data';
   standalone: false
 })
 export class ProfilePage implements OnInit {
+  
+  // Datos del Usuario
   nombre: string = 'Cargando...';
   apellido: string = '';
   email: string = 'cargando@acadex.com';
   photoUrl: string = '';
 
+  // Datos Académicos
   universidad: string = '';
   carrera: string = '';
   matricula: string = '';
 
+  // Preferencias de la Aplicación
   themeMode: string = 'system';
-  
   notificationsEnabled: boolean = true;
   notificationDays: number = 2; 
   notificationTime: string = '10:00'; 
 
-  // [NUEVO] Contadores dinámicos para las estadísticas
+  // Contadores de Estadísticas
   completedTasksCount: number = 0;
   pendingTasksCount: number = 0;
   subjectsCount: number = 0;
 
+  // Inyección de Dependencias
   constructor(
     private auth: Auth,
     private firestore: Firestore,
@@ -41,10 +45,10 @@ export class ProfilePage implements OnInit {
     private alertController: AlertController,
     private navCtrl: NavController,
     private toastController: ToastController,
-    // [NUEVO] Inyectamos el servicio
     private dataService: DataService
   ) {}
 
+  // Inicialización y Carga de Datos
   ngOnInit() {
     localStorage.removeItem('acadex_dark_mode');
     this.themeMode = localStorage.getItem('acadex_theme') || 'system';
@@ -64,7 +68,7 @@ export class ProfilePage implements OnInit {
         
         this.photoUrl = user.photoURL || '';
 
-        // [NUEVO] Suscripción a Tareas y Materias en tiempo real
+        // Suscripción a Estadísticas en Tiempo Real
         this.dataService.getTasks().subscribe(tasks => {
           this.completedTasksCount = tasks.filter(t => t.isCompleted).length;
           this.pendingTasksCount = tasks.filter(t => !t.isCompleted).length;
@@ -74,6 +78,7 @@ export class ProfilePage implements OnInit {
           this.subjectsCount = subjects.length;
         });
 
+        // Obtención de Datos de Perfil desde Firestore
         try {
           const userDocRef = doc(this.firestore, `users/${user.uid}`);
           const userDocSnap = await getDoc(userDocRef);
@@ -95,12 +100,14 @@ export class ProfilePage implements OnInit {
     });
   }
 
+  // Generación de URL de Avatar
   getAvatarUrl(): string {
     if (this.photoUrl) return this.photoUrl;
     const nombreParaAvatar = this.nombre === 'Cargando...' ? 'Acadex' : this.nombre;
     return `https://ui-avatars.com/api/?name=${nombreParaAvatar}+${this.apellido}&background=3880ff&color=fff&size=150`;
   }
 
+  // Gestión del Tema Visual
   onThemeChange(event: any) {
     this.themeMode = event.detail.value;
     localStorage.setItem('acadex_theme', this.themeMode);
@@ -119,6 +126,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
+  // Configuración de Notificaciones
   async toggleNotifications() {
     if (this.notificationsEnabled) {
       try {
@@ -133,6 +141,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
+  // Subida y Actualización de Foto de Perfil
   async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
@@ -163,6 +172,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
+  // Recuperación de Contraseña
   async changePassword() {
     if (!this.email) return;
     try {
@@ -173,6 +183,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
+  // Eliminación de Cuenta
   async deleteAccount() {
     const alert = await this.alertController.create({
       header: '¿Estás seguro?',
@@ -199,6 +210,7 @@ export class ProfilePage implements OnInit {
     await alert.present();
   }
 
+  // Guardado de Datos de Perfil en Firestore
   async saveProfile() {
     const user = this.auth.currentUser;
     if (!user) return;
@@ -222,6 +234,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
+  // Utilidades de Interfaz de Usuario
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
       header,

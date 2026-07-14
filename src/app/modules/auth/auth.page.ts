@@ -10,14 +10,15 @@ import { ToastController, LoadingController, NavController, AlertController } fr
   standalone: false
 })
 export class AuthPage implements OnInit {
+  
+  // Variables de estado y configuración
   authForm: FormGroup;
   isLoginMode: boolean = true; 
-
   showPassword = false;
   showConfirmPassword = false;
-
   emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$";
 
+  // Constructor e inicialización del formulario reactivo
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -40,6 +41,7 @@ export class AuthPage implements OnInit {
 
   ngOnInit() {}
 
+  // Validador de coincidencia de contraseñas
   passwordMatchValidator(control: AbstractControl) {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
@@ -47,6 +49,7 @@ export class AuthPage implements OnInit {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
+  // Alternar entre modo de Inicio de Sesión y Registro
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
     this.authForm.reset();
@@ -62,6 +65,7 @@ export class AuthPage implements OnInit {
     camposRegistro.forEach(campo => this.authForm.get(campo)?.updateValueAndValidity());
   }
 
+  // Alternar visibilidad del texto de la contraseña
   togglePasswordVisibility(target: 'pass' | 'confirm') {
     if (target === 'pass') {
       this.showPassword = !this.showPassword;
@@ -70,12 +74,12 @@ export class AuthPage implements OnInit {
     }
   }
 
-  // [ACTUALIZADO] Alerta moderna y estilizada
+  // Flujo de recuperación de contraseña
   async forgotPassword() {
     const alert = await this.alertCtrl.create({
       header: 'Recuperar Contraseña',
       message: 'Ingresa tu correo y te enviaremos un enlace seguro para restablecerla.',
-      mode: 'ios', // Obliga bordes redondeados y estilo premium
+      mode: 'ios',
       inputs: [
         {
           name: 'email',
@@ -106,12 +110,12 @@ export class AuthPage implements OnInit {
     await alert.present();
   }
 
+  // Procesamiento del formulario (Autenticación)
   async onSubmit() {
     if (this.authForm.invalid) return;
 
     const formValues = this.authForm.value;
     
-    // Spinner moderno de carga
     const loading = await this.loadingCtrl.create({
       message: this.isLoginMode ? 'Iniciando sesión...' : 'Preparando tu espacio...',
       spinner: 'crescent',
@@ -133,20 +137,19 @@ export class AuthPage implements OnInit {
           carrera: formValues.carrera,
           matricula: formValues.matricula
         });
-        // [ACTUALIZADO] Toast de éxito con ícono
         this.showToast('¡Cuenta creada con éxito! Bienvenido a Acadex.', 'success', 'checkmark-circle');
         this.navCtrl.navigateRoot('/dashboard'); 
       }
     } catch (error: any) {
       console.error(error);
       const friendlyMessage = this.getFriendlyErrorMessage(error.code);
-      // [ACTUALIZADO] Toast de error con ícono
       this.showToast(friendlyMessage, 'danger', 'alert-circle');
     } finally {
       await loading.dismiss();
     }
   }
 
+  // Traducción y mapeo de errores de Firebase
   getFriendlyErrorMessage(errorCode: string): string {
     switch (errorCode) {
       case 'auth/invalid-credential':
@@ -168,7 +171,7 @@ export class AuthPage implements OnInit {
     }
   }
 
-  // [ACTUALIZADO] Toasts superiores estilo notificaciones Push
+  // Control de notificaciones visuales en pantalla
   async showToast(message: string, color: string, icon: string = 'information-circle') {
     const toast = await this.toastCtrl.create({ 
       message, 

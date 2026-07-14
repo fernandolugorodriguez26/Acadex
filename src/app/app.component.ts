@@ -14,8 +14,9 @@ export class AppComponent {
     this.initializeApp();
   }
 
+
   initializeApp() {
-    // 1. Inicialización del Tema Oscuro/Automático
+    
     const savedTheme = localStorage.getItem('acadex_theme') || 'system';
     this.applyTheme(savedTheme);
 
@@ -29,7 +30,6 @@ export class AppComponent {
       }
     });
 
-    // 2. Inicialización de Push Notifications (Solo si es un dispositivo móvil real)
     this.platform.ready().then(() => {
       if (this.platform.is('capacitor')) {
         this.setupPushNotifications();
@@ -37,25 +37,29 @@ export class AppComponent {
     });
   }
 
+  // ==========================================
+  // CONFIGURACIÓN DE NOTIFICACIONES PUSH
+  // ==========================================
   setupPushNotifications() {
-    // Solicitamos permiso al usuario (agregamos : any para cumplir con TypeScript estricto)
+    
     PushNotifications.requestPermissions().then((result: any) => {
       if (result.receive === 'granted') {
         PushNotifications.register();
       }
     });
 
-    // Escuchamos cuando la notificación llega
     PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
       console.log('Notificación recibida: ', notification);
     });
 
-    // Escuchamos si el usuario toca la notificación
     PushNotifications.addListener('pushNotificationActionPerformed', (action: any) => {
       console.log('El usuario tocó la notificación: ', action);
     });
   }
 
+  // ==========================================
+  // LÓGICA DE APLICACIÓN DE TEMA
+  // ==========================================
   applyTheme(theme: string) {
     if (theme === 'dark') {
       document.documentElement.classList.add('ion-palette-dark');

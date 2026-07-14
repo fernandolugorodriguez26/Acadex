@@ -1,3 +1,4 @@
+// Componente de Tarjeta del Calendario
 .calendar-card {
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
@@ -5,12 +6,14 @@
   overflow: hidden;
 }
 
+// Títulos de Sección
 .section-title {
   font-weight: 700;
   color: var(--ion-color-dark);
   font-size: 1.1rem;
 }
 
+// Estilos de Lista y Elementos de Tarea
 .transparent-list {
   background: transparent;
   .task-item {
@@ -20,20 +23,23 @@
   }
 }
 
+// Etiquetas de Materia
 .subject-badge {
   color: var(--ion-color-secondary);
   font-weight: 500;
   margin-top: 3px;
 }
 
+// Estado de Tareas Completadas
 .completed-text {
   text-decoration: line-through;
   color: var(--ion-color-medium);
 }
 
+// Interfaz de Estado Vacío (Sin Tareas)
 .empty-state {
   text-align: center;
   padding: 30px 20px;
   color: var(--ion-color-medium);
-  p { margin-top: 10px; }
+  p { margin-top: 10px; } 
 }
