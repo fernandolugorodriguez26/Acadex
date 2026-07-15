@@ -55,10 +55,10 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 
 | Categoría | Tecnología |
 |---|---|
-| Frontend | _por definir_ |
-| Backend | _por definir_ |
-| Base de datos | _por definir_ |
-| Autenticación | _por definir_ |
+| Frontend | Ionic Framework (Angular / TypeScript) |
+| Backend | _Firebase (Arquitectura Serverless)_ |
+| Base de datos | _Cloud Firestore (NoSQL)_ |
+| Autenticación | _Firebase Authentication_ |
 | Control de versiones | Git y GitHub |
 
 ## ⚙️ Instalación
