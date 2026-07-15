@@ -55,7 +55,7 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 
 | Categoría | Tecnología |
 |---|---|
-| Frontend | Ionic Framework (Angular / TypeScript) |
+| Frontend | _Ionic Framework (Angular / TypeScript)_ |
 | Backend | _Firebase (Arquitectura Serverless)_ |
 | Base de datos | _Cloud Firestore (NoSQL)_ |
 | Autenticación | _Firebase Authentication_ |
@@ -70,7 +70,7 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
    git clone https://github.com/fernandolugorodriguez26/Acadex.git
    cd Acadex
    ```
-2. Instala las dependencias del proyecto (por ejemplo, si es un proyecto Node.js):
+2. Instala las dependencias del proyecto:
    ```bash
    npm install
    ```
