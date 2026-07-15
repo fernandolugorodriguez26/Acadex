@@ -111,8 +111,6 @@ Para una guía detallada, paso a paso y con capturas de cada pantalla, consulta 
 
 ## 📁 Estructura del proyecto
 
-> *Ajusta este árbol a la estructura real de carpetas del repositorio.*
-
 ```
 src/
 └── app/
@@ -137,7 +135,35 @@ src/
     ├── app.component.spec.ts
     └── app.component.ts
 ```
+## 📅 Historial de Desarrollo (Progreso Semanal)
 
+El proyecto se desarrolló de manera iterativa y progresiva a lo largo de 6 semanas, aplicando un control de versiones riguroso con la metodología de commits descriptivos (Git Commit Guidelines):
+
+* **Semana 1 (Principios de Junio 2026): Inicialización y Estructura Base**
+    * `feat: inicializar arquitectura base del proyecto ionic angular`
+    * `structure: organizar directorios core, shared y modules`
+    * `route: configurar mapeo de rutas con carga perezosa (lazy loading)`
+* **Semana 2 (Mediados de Junio 2026): Sistema de Autenticación**
+    * `feat: integrar servicio de autenticación de firebase en el core`
+    * `style: diseñar vistas de inicio de sesión y registro con validaciones reactivas`
+    * `fix: gestionar errores de excepción para credenciales de acceso`
+* **Semana 3 (Finales de Junio 2026): Gestión de Materias y Firebase**
+    * `feat: configurar servicio de datos para operaciones CRUD en firestore`
+    * `feat: diseñar módulo de registro de asignaturas con listado dinámico`
+    * `math: implementar algoritmo de cálculo en tiempo real para calificación literal`
+* **Semana 4 (Principios de Julio 2026): Tareas, Gamificación y Calendario**
+    * `feat: crear panel de gestión de tareas con filtros de búsqueda por chips`
+    * `feat: integrar cuadrícula de vista mensual para el calendario`
+    * `ui: diseñar widgets de barra de progreso global y racha de estudio`
+* **Semana 5 (Mediados de Julio 2026): Integración de APIs Nativas y Ajustes**
+    * `feat: implementar servicio offline de notificaciones locales con capacitor`
+    * `native: forzar diseño inmersivo (immersive sticky) de android en MainActivity`
+    * `fix: corregir superposición del fondo oscuro al seleccionar modo claro`
+* **Semana 6 (Entrega - Julio 15, 2026): Control de Calidad y Documentación**
+    * `docs: crear manual de usuario y archivos de especificación técnica`
+    * `fix: implementar handleImageError como respaldo para foto de perfil en storage`
+    * `release: despliegue de versión estable de producción 1.0.0`
+  
 ## 🤝 Contribuciones
 
 Este es un proyecto académico. Si quieres proponer una mejora o reportar un error, abre un [issue](https://github.com/fernandolugorodriguez26/Acadex/issues) o envía un pull request.
@@ -148,3 +174,6 @@ Este es un proyecto académico. Si quieres proponer una mejora o reportar un err
 **Fernando Lugo Rodríguez** — [@fernandolugorodriguez26](https://github.com/fernandolugorodriguez26)
 
 Enlace del proyecto: [github.com/fernandolugorodriguez26/Acadex](https://github.com/fernandolugorodriguez26/Acadex)
+
+#Documentación Tecnica
+```https://drive.google.com/file/d/1KCYBPzeKqGjBzJc6Hlg-HgXtJ8kVlMLY/view?usp=sharing```
