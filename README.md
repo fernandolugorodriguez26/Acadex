@@ -25,14 +25,13 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 <table align="center">
   <tr>
     <td align="center"><img width="826" height="841" alt="Captura de pantalla 2026-07-14 215133" src="https://github.com/user-attachments/assets/91e4ff50-8a39-4dd1-8d43-3f32db13251e" /><br/><sub><b>Iniciar sesión</b></sub></td>
-
-    <td align="center"><img src="docs/screenshots/registro.png" width="220"/><br/><sub><b>Crear cuenta</b></sub></td>
-    <td align="center"><img src="docs/screenshots/calendario.png" width="280"/><br/><sub><b>Calendario</b></sub></td>
+    <td align="center"><img width="499" height="968" alt="Captura de pantalla 2026-07-14 215147" src="https://github.com/user-attachments/assets/05a30996-362e-42be-9148-fa999ea9e677" /><br/><sub><b>Crear cuenta</b></sub></td>
+    <td align="center"><img width="1908" height="1045" alt="Captura de pantalla 2026-07-14 215108" src="https://github.com/user-attachments/assets/6fab20f4-095a-46e6-a116-d4d158979268" /><br/><sub><b>Inicio</b></sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/tareas.png" width="280"/><br/><sub><b>Gestión académica</b></sub></td>
-    <td align="center"><img src="docs/screenshots/materias.png" width="280"/><br/><sub><b>Mis materias</b></sub></td>
-    <td align="center"><img src="docs/screenshots/perfil.png" width="220"/><br/><sub><b>Mi perfil</b></sub></td>
+    <td align="center"><img width="1892" height="1056" alt="Captura de pantalla 2026-07-14 212810" src="https://github.com/user-attachments/assets/42772991-d80d-4d63-998e-79fd2a50fea6" /><br/><sub><b>Gestión académica</b></sub></td>
+    <td align="center"><img width="1913" height="1055" alt="Captura de pantalla 2026-07-14 212751" src="https://github.com/user-attachments/assets/708736f1-f1db-4a64-8283-e4defbe7bbf4" /><br/><sub><b>Mis materias</b></sub></td>
+    <td align="center"><img width="1895" height="1057" alt="Captura de pantalla 2026-07-14 212823" src="https://github.com/user-attachments/assets/dd298ab9-2966-41cd-9ddf-148e5a904ed3" /><br/><sub><b>Mi perfil</b></sub></td>
   </tr>
 </table>
 
