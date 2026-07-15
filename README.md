@@ -1,18 +1,3 @@
----
-
-## 📑 Tabla de contenido
-
-1. Descripción general
-2. Capturas de pantalla
-3. Funcionalidades principales
-4. Tecnologías utilizadas
-5. Instalación
-6. Uso
-7. Estructura del proyecto
-8. Contribuciones
-9. Contacto
-
-> GitHub genera automáticamente un índice navegable con los encabezados de este archivo: usa el ícono ☰ en la esquina superior izquierda del documento renderizado para saltar a cualquier sección.
 
 ## 🎯 Descripción general
 
