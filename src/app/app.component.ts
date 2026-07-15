@@ -41,38 +41,29 @@ export class AppComponent {
     });
   }
 
-  // ==========================================
-  // CONFIGURACIÓN DE NOTIFICACIONES (LOCALES Y PUSH)
+// ==========================================
+  // CONFIGURACIÓN DE NOTIFICACIONES SEGURA
   // ==========================================
   async setupNotifications() {
     try {
+      // 1. --- NOTIFICACIONES LOCALES (Alarmas de Tareas y Materias) ---
+      // Esto funciona de manera nativa y NO requiere configuraciones externas en Firebase
       const localPermStatus = await LocalNotifications.requestPermissions();
       
       if (localPermStatus.display === 'granted') {
+        console.log('Permisos de notificaciones locales concedidos.');
+
         LocalNotifications.addListener('localNotificationReceived', (notification) => {
-          console.log('Alarma de tarea recibida: ', notification);
+          console.log('Alarma de tarea recibida en primer plano: ', notification);
         });
 
         LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
-          console.log('El usuario tocó la alarma de la tarea: ', action);
+          console.log('El usuario interactuó con la alarma: ', action);
         });
       }
 
-      const pushPermStatus = await PushNotifications.requestPermissions();
-      if (pushPermStatus.receive === 'granted') {
-        PushNotifications.register();
-      }
-
-      PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
-        console.log('Notificación Push recibida: ', notification);
-      });
-
-      PushNotifications.addListener('pushNotificationActionPerformed', (action: any) => {
-        console.log('El usuario tocó la notificación Push: ', action);
-      });
-
     } catch (error) {
-      console.error('Error al configurar los permisos de notificaciones:', error);
+      console.error('Error controlado en el setup de notificaciones:', error);
     }
   }
 
