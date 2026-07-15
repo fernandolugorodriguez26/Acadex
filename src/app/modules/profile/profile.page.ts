@@ -1,3 +1,4 @@
+// Importaciones de Dependencias
 import { Component, OnInit } from '@angular/core';
 import { Auth, onAuthStateChanged, sendPasswordResetEmail, deleteUser, updateProfile } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
@@ -107,6 +108,12 @@ export class ProfilePage implements OnInit {
     return `https://ui-avatars.com/api/?name=${nombreParaAvatar}+${this.apellido}&background=3880ff&color=fff&size=150`;
   }
 
+  // Respaldo por si la imagen de Firebase falla
+  handleImageError(event: any) {
+    const nombreParaAvatar = this.nombre === 'Cargando...' ? 'Acadex' : this.nombre;
+    event.target.src = `https://ui-avatars.com/api/?name=${nombreParaAvatar}+${this.apellido}&background=3880ff&color=fff&size=150`;
+  }
+
   // Gestión del Tema Visual
   onThemeChange(event: any) {
     this.themeMode = event.detail.value;
@@ -160,7 +167,12 @@ export class ProfilePage implements OnInit {
       const filePath = `users/${user.uid}/profile_${Date.now()}`;
       const storageRef = ref(this.storage, filePath);
 
-      await uploadBytes(storageRef, file);
+      // Metadatos para asegurar que Firebase lo lee como imagen
+      const metadata = {
+        contentType: file.type
+      };
+
+      await uploadBytes(storageRef, file, metadata);
       const downloadUrl = await getDownloadURL(storageRef);
       await updateProfile(user, { photoURL: downloadUrl });
 

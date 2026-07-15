@@ -13,7 +13,7 @@
   <div class="profile-header ion-text-center fade-in">
     <div class="avatar-container" (click)="fileInput.click()">
       <ion-avatar class="main-avatar">
-        <img [src]="getAvatarUrl()" alt="Perfil" />
+        <img [src]="getAvatarUrl()" (error)="handleImageError($event)" alt="Perfil" />
       </ion-avatar>
       <div class="edit-icon-badge">
         <ion-icon name="camera"></ion-icon>

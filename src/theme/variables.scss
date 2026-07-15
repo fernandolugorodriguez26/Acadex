@@ -114,12 +114,30 @@
 }
 
 // ==========================================
-// ACTIVACIÓN DEL MODO OSCURO
+// CONFIGURACIÓN: MODO OSCURO
 // ==========================================
-@media (prefers-color-scheme: dark) {
-  :root {
-    @include dark-theme;
-  }
+@mixin dark-theme {
+  --ion-color-primary: #4c8dff;
+  --ion-color-primary-rgb: 76, 141, 255;
+  
+  --ion-color-dark: #f8f9fa;
+  --ion-color-dark-rgb: 248, 249, 250;
+  --ion-color-dark-contrast: #121212;
+  
+  --ion-color-light: #222428;
+  --ion-color-light-rgb: 34, 36, 40;
+  --ion-color-light-contrast: #ffffff;
+
+  --ion-background-color: #121212;
+  --ion-background-color-rgb: 18, 18, 18;
+  --ion-text-color: #f9fafb;
+  --ion-text-color-rgb: 249, 250, 251;
+  
+  --ion-card-background: #1e1e1e;
+  --ion-color-step-50: #2a2a2a;
+  --ion-color-step-100: #333333;
+  --ion-color-step-150: #404040;
+  --ion-color-step-200: #525252;
 }
 
 body.dark {

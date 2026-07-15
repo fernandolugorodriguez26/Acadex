@@ -1,6 +1,11 @@
+// ==========================================
+// COMPONENTE PRINCIPAL (APP ROOT)
+// ==========================================
+
 import { Component } from '@angular/core';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { Platform } from '@ionic/angular';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { LocalNotifications } from '@capacitor/local-notifications'; 
 
 @Component({
   selector: 'app-root',
@@ -14,47 +19,61 @@ export class AppComponent {
     this.initializeApp();
   }
 
-
   initializeApp() {
-    
     const savedTheme = localStorage.getItem('acadex_theme') || 'system';
     this.applyTheme(savedTheme);
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (localStorage.getItem('acadex_theme') === 'system') {
         if (e.matches) {
-          document.documentElement.classList.add('ion-palette-dark');
+          document.body.classList.add('dark', 'ion-palette-dark');
         } else {
-          document.documentElement.classList.remove('ion-palette-dark');
+          document.body.classList.remove('dark', 'ion-palette-dark');
         }
       }
     });
 
+    // 2. Inicialización de la Plataforma Móvil
     this.platform.ready().then(() => {
       if (this.platform.is('capacitor')) {
-        this.setupPushNotifications();
+        this.setupNotifications();
       }
     });
   }
 
   // ==========================================
-  // CONFIGURACIÓN DE NOTIFICACIONES PUSH
+  // CONFIGURACIÓN DE NOTIFICACIONES (LOCALES Y PUSH)
   // ==========================================
-  setupPushNotifications() {
-    
-    PushNotifications.requestPermissions().then((result: any) => {
-      if (result.receive === 'granted') {
+  async setupNotifications() {
+    try {
+      const localPermStatus = await LocalNotifications.requestPermissions();
+      
+      if (localPermStatus.display === 'granted') {
+        LocalNotifications.addListener('localNotificationReceived', (notification) => {
+          console.log('Alarma de tarea recibida: ', notification);
+        });
+
+        LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+          console.log('El usuario tocó la alarma de la tarea: ', action);
+        });
+      }
+
+      const pushPermStatus = await PushNotifications.requestPermissions();
+      if (pushPermStatus.receive === 'granted') {
         PushNotifications.register();
       }
-    });
 
-    PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
-      console.log('Notificación recibida: ', notification);
-    });
+      PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
+        console.log('Notificación Push recibida: ', notification);
+      });
 
-    PushNotifications.addListener('pushNotificationActionPerformed', (action: any) => {
-      console.log('El usuario tocó la notificación: ', action);
-    });
+      PushNotifications.addListener('pushNotificationActionPerformed', (action: any) => {
+        console.log('El usuario tocó la notificación Push: ', action);
+      });
+
+    } catch (error) {
+      console.error('Error al configurar los permisos de notificaciones:', error);
+    }
   }
 
   // ==========================================
@@ -62,15 +81,16 @@ export class AppComponent {
   // ==========================================
   applyTheme(theme: string) {
     if (theme === 'dark') {
-      document.documentElement.classList.add('ion-palette-dark');
+      document.body.classList.add('dark', 'ion-palette-dark');
     } else if (theme === 'light') {
-      document.documentElement.classList.remove('ion-palette-dark');
+      document.body.classList.remove('dark', 'ion-palette-dark');
     } else {
+      // Modo Sistema
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (prefersDark) {
-        document.documentElement.classList.add('ion-palette-dark');
+        document.body.classList.add('dark', 'ion-palette-dark');
       } else {
-        document.documentElement.classList.remove('ion-palette-dark');
+        document.body.classList.remove('dark', 'ion-palette-dark');
       }
     }
   }
