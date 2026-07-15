@@ -1,4 +1,3 @@
-
 ## 🎯 Descripción general
 
 **Acadex** es una aplicación híbrida de gestión académica pensada para estudiantes universitarios. Centraliza en un solo lugar las **materias inscritas**, las **tareas y evaluaciones pendientes**, y el **calendario de clases**, para dejar atrás las agendas físicas, las notas sueltas y la dispersión de la información académica entre varias aplicaciones.
@@ -42,7 +41,7 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 
 ### 📘 Gestión de materias
 - Registro de asignaturas con código, nombre, profesor/facilitador y día de clase opcional.
-- Listado de materias con la cantidad de asignaciones evaluadas y el promedio actual.
+- Listado de materias con la cantidad de asignaciones evaluadas y el promedio actual de forma ponderada.
 
 ### 👤 Perfil de usuario
 - Foto de perfil editable y resumen de tareas completadas, pendientes y materias activas.
@@ -51,40 +50,52 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 
 ## 🛠️ Tecnologías utilizadas
 
-> *Completa esta sección con el stack real del proyecto; se deja la estructura sugerida a modo de guía.*
-
 | Categoría | Tecnología |
 |---|---|
-| Frontend | _Ionic Framework (Angular / TypeScript)_ |
-| Backend | _Firebase (Arquitectura Serverless)_ |
-| Base de datos | _Cloud Firestore (NoSQL)_ |
-| Autenticación | _Firebase Authentication_ |
+| Frontend | Ionic Framework (Angular / TypeScript) |
+| Backend | Firebase (Arquitectura Serverless) |
+| Base de datos | Cloud Firestore (NoSQL) |
+| Autenticación | Firebase Authentication |
 | Control de versiones | Git y GitHub |
 
-## ⚙️ Instalación
+## ⚙️ Instalación y Configuración
 
-> Ajusta estos pasos según el stack final del proyecto.
+Para clonar y ejecutar este proyecto de forma local, sigue estos pasos:
 
-1. Clona el repositorio:
+1. **Clonar el repositorio:**
    ```bash
-   git clone https://github.com/fernandolugorodriguez26/Acadex.git
+   git clone [https://github.com/fernandolugorodriguez26/Acadex.git](https://github.com/fernandolugorodriguez26/Acadex.git)
    cd Acadex
    ```
 2. Instala las dependencias del proyecto:
    ```bash
    npm install
    ```
-3. Configura las variables de entorno necesarias (credenciales de base de datos, autenticación, etc.) en un archivo `.env`.
-4. Inicia la aplicación en modo desarrollo:
+3. Configurar Firebase:
+Para conectar la app con la base de datos, debes añadir las credenciales de Firebase en el archivo de configuración de entornos de Angular. Abre el archivo src/environments/environment.ts (y environment.prod.ts para producción) e ingresa las claves de API.
+```
+export const environment = {
+  production: false,
+  firebaseConfig: {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
+  }
+};
+```
+5. Inicia la aplicación en modo desarrollo:
    ```bash
-   npm run dev
+   ionic serve
    ```
-5. Abre `http://localhost:8100` (o el puerto que corresponda) en tu navegador.
+6. Se abre `http://localhost:8100` en tu navegador.
 
 ### Requisitos previos
-- Navegador actualizado (Chrome, Safari, Edge o Firefox).
-- Conexión a internet para iniciar sesión y sincronizar el calendario.
-- Node.js 18 o superior, si el proyecto lo requiere.
+-Node.js: Versión 18 o superior.
+-Navegador web: Chrome, Safari, Edge o Firefox actualizado.
+-Conectividad: Conexión a internet activa para los flujos de autenticación y sincronización con Firebase.
 
 ## ▶️ Uso
 
@@ -96,7 +107,7 @@ Una vez dentro de la aplicación:
 4. Consulta el **Calendario** para ver tus clases y entregas del día.
 5. Da seguimiento a tu progreso y ajusta tus preferencias desde **Mi Perfil**.
 
-Para una guía detallada, paso a paso y con capturas de cada pantalla, consulta el **Manual de Usuario** del proyecto (`docs/Manual_Usuario_Acadex.docx`).
+Para una guía detallada, paso a paso y con capturas de cada pantalla, consulta el **Manual de Usuario** del proyecto (`https://drive.google.com/file/d/1fjYypJ8CSl9VlclOZdQtqfKjBEye8YO5/view?usp=sharing`)).
 
 ## 📁 Estructura del proyecto
 
