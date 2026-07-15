@@ -24,7 +24,8 @@ Con Acadex el estudiante puede registrar sus materias con su profesor y horario,
 
 <table align="center">
   <tr>
-    <td align="center"><img src="docs/screenshots/login.png" width="220"/><br/><sub><b>Iniciar sesión</b></sub></td>
+    <td align="center"><img width="826" height="841" alt="Captura de pantalla 2026-07-14 215133" src="https://github.com/user-attachments/assets/91e4ff50-8a39-4dd1-8d43-3f32db13251e" /><br/><sub><b>Iniciar sesión</b></sub></td>
+
     <td align="center"><img src="docs/screenshots/registro.png" width="220"/><br/><sub><b>Crear cuenta</b></sub></td>
     <td align="center"><img src="docs/screenshots/calendario.png" width="280"/><br/><sub><b>Calendario</b></sub></td>
   </tr>
